@@ -11,7 +11,7 @@ Express backend for the MovieMap application, providing APIs for film location d
 
 2. Set up environment variables:
    - Create a `.env` file based on the example
-   - Configure your PostgreSQL connection string in `DATABASE_URL`
+   - Optionally customize the `DB_PATH` to set a different SQLite database location
 
 3. Start the server:
    ```
@@ -26,14 +26,21 @@ Express backend for the MovieMap application, providing APIs for film location d
 ## Endpoints
 
 - `GET /health` - Health check endpoint (returns "OK")
+- `GET /db-test` - Database connection test endpoint
 
 ## Database
 
-The server is configured to connect to a PostgreSQL database with PostGIS extensions for geographic data.
+The server uses SQLite for data storage. The database file is automatically created in the `data` directory when the server starts.
+
+### Schema
+
+- `locations` - Approved filming locations
+- `submissions` - User-submitted locations pending moderation
+- `moderators` - Authorized moderator UIDs
 
 ## Configuration
 
 Environment variables:
 - `PORT` - Server port (default: 3000)
-- `DATABASE_URL` - PostgreSQL connection string
+- `DB_PATH` - SQLite database file path (default: ./data/moviemap.db)
 - `NODE_ENV` - Environment (development/production)

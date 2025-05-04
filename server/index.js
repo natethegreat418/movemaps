@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
 // Load environment variables first
 dotenv.config();
@@ -21,28 +22,31 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
+// Test database endpoint
+app.get('/db-test', (req, res) => {
+  try {
+    // Simple query to check database connectivity
+    const result = db.query('SELECT 1 AS test');
+    res.status(200).json({ 
+      message: 'Database connection successful',
+      result: result.rows
+    });
+  } catch (err) {
+    console.error('Database test error:', err);
+    res.status(500).json({ error: 'Database connection failed' });
+  }
+});
+
+// Proper shutdown
+process.on('SIGINT', () => {
+  console.log('Closing database connections...');
+  db.close();
+  process.exit(0);
+});
+
 // Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
-
-// For testing database connection
-async function testDbConnection() {
-  try {
-    // Only attempt to connect if DATABASE_URL is provided
-    if (process.env.DATABASE_URL) {
-      const client = await db.getClient();
-      console.log('Database connection successful');
-      client.release();
-    } else {
-      console.log('DATABASE_URL not set, skipping database connection test');
-    }
-  } catch (err) {
-    console.error('Database connection error:', err);
-  }
-}
-
-// Call test function on startup but don't stop server if it fails
-testDbConnection().catch(console.error);
 
 module.exports = app;
