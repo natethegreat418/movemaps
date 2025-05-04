@@ -32,7 +32,6 @@ git push origin master
 
 Netlify should automatically detect the settings from your netlify.toml file, but verify:
 
-- Base directory: `moviemap/`
 - Build command: `npm run build`
 - Publish directory: `dist`
 

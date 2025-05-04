@@ -1,7 +1,4 @@
 [build]
-  # Directory to change to before starting a build
-  base = "moviemap/"
-  
   # Directory that contains the deploy-ready HTML files
   publish = "dist"
   
