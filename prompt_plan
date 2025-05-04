@@ -1,0 +1,179 @@
+
+# MovieMap LLM Prompt Plan
+
+This document outlines the step-by-step prompt plan for implementing the MovieMap application using an LLM. Each prompt builds on the previous steps and ensures clean, integrated code without orphaned fragments.
+
+---
+
+## 🧱 Phase 1: Project Blueprint
+
+### 1. Project Setup
+- Initialize Git repo and folder structure
+- Set up Vite + React frontend
+- Set up Node.js + Express backend
+- Set up PostgreSQL with PostGIS
+- Set up Firebase Auth for moderator access
+- Configure deployment (Netlify)
+
+### 2. Core Frontend UI
+- Home page with Mapbox GL JS integration
+- Pin click opens modal with:
+  - Movie title
+  - Year
+  - IMDb link
+  - Trailer embed
+
+### 3. Backend API
+- REST API for:
+  - Fetching filming locations
+  - Submitting new locations
+  - Moderator review
+- Middleware for Firebase Auth validation
+
+### 4. Admin Interface
+- Simple dashboard for approving/rejecting submissions
+- Metadata editing before publishing
+
+### 5. Database Schema
+- `locations`: id, title, type, coordinates, trailer_url, imdb_link
+- `submissions`: same as above + status
+- `moderators`: uid
+
+### 6. Community Contribution Form
+- Basic form (public)
+- Submit new location to backend
+
+### 7. Mobile Responsiveness
+- Ensure UI/UX adapts cleanly to mobile
+
+---
+
+## 🔁 Phase 2: Iterative Chunking
+
+### ✅ Chunk A: Environment Setup
+1. Create frontend with Vite + React
+2. Create backend with Express
+3. Connect PostgreSQL DB
+4. Set up Firebase Auth
+5. Deploy frontend/backend to Netlify/Render
+
+### ✅ Chunk B: Map + Pins
+1. Add Mapbox map
+2. Load static pins from a hardcoded list
+3. Style pins and clustering
+4. Show modal on pin click
+
+### ✅ Chunk C: Dynamic Location Data
+1. Build backend API `GET /locations`
+2. Fetch pins dynamically from DB
+3. Migrate initial dataset (100 curated titles)
+4. Display API data on map
+
+### ✅ Chunk D: Submission Flow
+1. Add form for new submissions
+2. Backend API `POST /submit-location`
+3. Save to `submissions` table
+4. Add validation
+
+### ✅ Chunk E: Admin Interface
+1. Moderator login w/ Firebase Auth
+2. Review + approve submissions
+3. Backend API `PUT /moderate/:id`
+4. Move submission to published `locations`
+
+### ✅ Chunk F: Mobile Styling
+1. Responsive map layout
+2. Optimized modals
+3. Form responsiveness
+4. Admin panel mobile pass
+
+---
+
+## 🔨 Phase 3: Microstep Decomposition
+
+### Chunk A: Microsteps
+1. `npx create-vite@latest moviemap --template react`
+2. `npm install` basic dependencies
+3. Set up folder structure (components, pages, utils)
+4. Create `.env` files
+5. `npm init -y` backend
+6. Install Express, CORS, dotenv
+7. Create `GET /health` endpoint
+8. Connect backend to PostgreSQL
+9. Set up Firebase Auth rules
+10. Deploy frontend to Netlify
+11. Deploy backend to Render
+
+---
+
+## 🧠 Phase 4: LLM-Ready Prompts
+
+### 🟩 Prompt A1: Vite + React Setup
+\`\`\`text
+Create a new React project using Vite. Use \`npm create vite@latest moviemap --template react\`. Initialize the project, install dependencies, and configure a folder structure with \`components/\`, \`pages/\`, and \`utils/\`.
+\`\`\`
+
+### 🟩 Prompt A2: Express Backend Setup
+\`\`\`text
+Create a Node.js project with Express. Add a single route \`GET /health\` that returns "OK". Enable CORS and use dotenv to load env variables. Assume the app will eventually connect to PostgreSQL.
+\`\`\`
+
+### 🟩 Prompt A3: PostgreSQL + PostGIS Connection
+\`\`\`text
+Set up a PostgreSQL connection in your Express app using the \`pg\` library. Create a database schema with PostGIS support. Start with a table \`locations\` with columns: id, title, type (movie/tv), coordinates (geometry), trailer_url, imdb_link.
+\`\`\`
+
+### 🟩 Prompt A4: Firebase Auth Middleware
+\`\`\`text
+Implement Firebase Admin SDK in your Express backend. Add middleware to verify Firebase ID tokens. Apply this middleware to protected admin routes only.
+\`\`\`
+
+### 🟩 Prompt B1: Add Mapbox to React
+\`\`\`text
+Using Mapbox GL JS, add an interactive map to the homepage in your React app. Center the map on a default location. Load Mapbox using the token from \`.env\`. Ensure proper cleanup of map instance.
+\`\`\`
+
+### 🟩 Prompt B2: Static Pins and Modals
+\`\`\`text
+Add a hardcoded list of 5 filming locations to your React map. When a user clicks a pin, open a modal that displays: title, year, IMDb link, and an embedded YouTube trailer. Style the modal cleanly.
+\`\`\`
+
+### 🟩 Prompt C1: Backend GET /locations
+\`\`\`text
+Create an Express route \`GET /locations\` that returns a list of all approved locations from the database. Return: id, title, type, coordinates, trailer_url, imdb_link.
+\`\`\`
+
+### 🟩 Prompt C2: Fetch and Display Locations
+\`\`\`text
+In your React frontend, fetch \`/locations\` and add the returned pins to the Mapbox map. Replace the hardcoded pins with the live data.
+\`\`\`
+
+### 🟩 Prompt D1: Submission Form
+\`\`\`text
+Create a form in React where users can submit a new filming location. Fields: title, type, general location name, Mapbox click for coordinates, trailer URL, IMDb link. Submit to backend via POST.
+\`\`\`
+
+### 🟩 Prompt D2: Backend POST /submit-location
+\`\`\`text
+Create an Express route \`POST /submit-location\` that accepts form data and inserts it into a \`submissions\` table. Add server-side validation for required fields.
+\`\`\`
+
+### 🟩 Prompt E1: Moderator Login
+\`\`\`text
+Set up Firebase Auth in your React app. Restrict admin access to users who are signed in. Only allow access to \`/admin\` page when a valid Firebase token is present.
+\`\`\`
+
+### 🟩 Prompt E2: Admin Review Interface
+\`\`\`text
+Create an admin dashboard where logged-in moderators can view submissions. Allow them to approve or reject, and optionally edit metadata before publishing. Send updates to backend via PUT.
+\`\`\`
+
+### 🟩 Prompt E3: Backend PUT /moderate/:id
+\`\`\`text
+Create an Express route \`PUT /moderate/:id\` that updates a submission. If approved, move data to the \`locations\` table. If rejected, update status. Require Firebase Auth.
+\`\`\`
+
+### 🟩 Prompt F1: Responsive UI
+\`\`\`text
+Make the entire app mobile-friendly using CSS media queries and flexbox/grid. Ensure the Mapbox map resizes correctly, modals are scrollable, and forms/admin interfaces are usable on mobile.
+\`\`\`
