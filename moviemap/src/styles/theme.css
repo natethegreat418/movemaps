@@ -1,3 +1,6 @@
+/* Load Google Fonts first, imports must be at the top */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&family=Roboto+Mono&display=swap');
+
 :root {
   /* 
    * Alamo Drafthouse-inspired color palette
@@ -205,6 +208,3 @@ button:disabled {
 .mb-3 { margin-bottom: var(--spacing-md); }
 .mb-4 { margin-bottom: var(--spacing-lg); }
 .mb-5 { margin-bottom: var(--spacing-xl); }
-
-/* Load Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&family=Roboto+Mono&display=swap');

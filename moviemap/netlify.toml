@@ -4,6 +4,11 @@
   
   # Default build command
   command = "npm run build"
+  
+  # Configure environment
+  [build.environment]
+    # Disable secrets scanning for the Mapbox token
+    SECRETS_SCAN_OMIT_KEYS = "VITE_MAPBOX_TOKEN"
 
 # Handle SPA routing by redirecting all requests to index.html
 [[redirects]]
