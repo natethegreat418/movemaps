@@ -8,6 +8,9 @@ dotenv.config();
 
 // Then load modules that depend on environment variables
 const db = require('./db');
+const { admin } = require('./config/firebase');
+const publicRoutes = require('./routes/public');
+const adminRoutes = require('./routes/admin');
 
 // Initialize Express app
 const app = express();
@@ -37,6 +40,26 @@ app.get('/db-test', (req, res) => {
   }
 });
 
+// Routes
+app.use('/api', publicRoutes);
+app.use('/api/admin', adminRoutes);
+
+// Add test moderator in development
+if (process.env.NODE_ENV === 'development') {
+  try {
+    // Check if test moderator exists
+    const result = db.query('SELECT * FROM moderators WHERE uid = ?', ['test-moderator']);
+    
+    // If not, add it
+    if (!result.rows || result.rows.length === 0) {
+      db.query('INSERT INTO moderators (uid) VALUES (?)', ['test-moderator']);
+      console.log('Added test moderator for development');
+    }
+  } catch (error) {
+    console.error('Error adding test moderator:', error);
+  }
+}
+
 // Proper shutdown
 process.on('SIGINT', () => {
   console.log('Closing database connections...');
@@ -47,6 +70,14 @@ process.on('SIGINT', () => {
 // Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
+  console.log(`API URL: http://localhost:${port}/api`);
+  
+  if (process.env.NODE_ENV === 'development') {
+    console.log('\nDevelopment Mode:');
+    console.log('- Test token for moderator access: "test-token-moderator"');
+    console.log('- Test moderator UID: "test-moderator"');
+  }
 });
 
 module.exports = app;
