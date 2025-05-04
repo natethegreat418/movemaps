@@ -1,0 +1,133 @@
+
+# 📋 MovieMap TODO Checklist
+
+A comprehensive, step-by-step checklist to guide the development of the MovieMap project from setup to deployment.
+
+---
+
+## ✅ Project Initialization
+
+- [ ] Create a new GitHub repository
+- [ ] Initialize project folder structure
+- [ ] Create frontend project with Vite + React
+- [ ] Create backend project with Node.js + Express
+- [ ] Add `.env` files for frontend and backend
+- [ ] Set up `.gitignore` files
+- [ ] Add README with project overview
+
+---
+
+## 🛠️ Development Environment Setup
+
+- [ ] Install frontend dependencies (React, Mapbox GL, etc.)
+- [ ] Install backend dependencies (Express, pg, dotenv, CORS, Firebase Admin SDK)
+- [ ] Configure CORS in Express backend
+- [ ] Create `GET /health` route in backend
+
+---
+
+## 🗃️ Database Setup
+
+- [ ] Install and configure PostgreSQL with PostGIS extension
+- [ ] Create `locations` table with columns:
+  - [ ] id (PK)
+  - [ ] title
+  - [ ] type (movie/tv)
+  - [ ] coordinates (geometry)
+  - [ ] trailer_url
+  - [ ] imdb_link
+- [ ] Create `submissions` table with columns:
+  - [ ] All `locations` columns
+  - [ ] status (pending/approved/rejected)
+- [ ] Create `moderators` table with Firebase UID
+
+---
+
+## 🔐 Authentication
+
+- [ ] Set up Firebase project
+- [ ] Enable Firebase Auth with Email/Password or Google Sign-In
+- [ ] Integrate Firebase Auth in frontend
+- [ ] Verify Firebase ID tokens in backend middleware
+- [ ] Restrict admin routes with middleware
+
+---
+
+## 🗺️ Mapbox Frontend
+
+- [ ] Add Mapbox GL JS to React app
+- [ ] Load map centered on a default location
+- [ ] Create and style pin components
+- [ ] Show modal with movie details on pin click
+- [ ] Add clustering behavior for overlapping pins
+
+---
+
+## 🔄 API Development
+
+- [ ] Create `GET /locations` to return approved locations
+- [ ] Create `POST /submit-location` to accept new submissions
+- [ ] Validate submission payload
+- [ ] Create `GET /submissions` for admin review
+- [ ] Create `PUT /moderate/:id` for approval/rejection
+
+---
+
+## 📝 Community Submission Flow
+
+- [ ] Build a form with fields:
+  - [ ] Title
+  - [ ] Type
+  - [ ] Location name (text)
+  - [ ] Map click to select coordinates
+  - [ ] Trailer URL
+  - [ ] IMDb link
+- [ ] Validate inputs in frontend
+- [ ] Send POST request to backend on submit
+
+---
+
+## 🛠️ Admin Interface
+
+- [ ] Create `/admin` route
+- [ ] Restrict access to authenticated moderators
+- [ ] Display list of pending submissions
+- [ ] Add "Approve", "Reject", and "Edit" options
+- [ ] Submit approval decisions via PUT request
+
+---
+
+## 📱 Mobile Optimization
+
+- [ ] Make Mapbox map responsive
+- [ ] Ensure modals work well on small screens
+- [ ] Optimize form layout for mobile
+- [ ] Ensure admin interface is usable on mobile
+
+---
+
+## 🧪 QA and Testing
+
+- [ ] Test form submissions with invalid/missing data
+- [ ] Test modals on all screen sizes
+- [ ] Test pin clustering behavior
+- [ ] Test API endpoints with Postman or equivalent
+- [ ] Test Firebase login and access control
+
+---
+
+## 🚀 Deployment
+
+- [ ] Deploy frontend to Netlify
+- [ ] Deploy backend to Render or other platform
+- [ ] Set production `.env` variables
+- [ ] Test full app in production
+
+---
+
+## 📦 Post-Launch
+
+- [ ] Monitor performance and logs
+- [ ] Gather user feedback
+- [ ] Plan next iteration (e.g. user accounts, filtering, analytics)
+
