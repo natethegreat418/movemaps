@@ -55,13 +55,13 @@ const LocationModal = ({ location, onClose }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-container" ref={modalRef}>
-        <button className="modal-close-btn" onClick={onClose}>×</button>
+        <button className="modal-close-btn" onClick={onClose} aria-label="Close">×</button>
         
         <div className="modal-header">
           <h2>{location.title}</h2>
           <div className="modal-meta">
             <span className="modal-year">{location.year}</span>
-            <span className="modal-type">{location.type}</span>
+            <span className={`modal-type ${location.type}`}>{location.type}</span>
           </div>
         </div>
         
@@ -69,7 +69,7 @@ const LocationModal = ({ location, onClose }) => {
           {youtubeVideoId && (
             <div className="modal-trailer">
               <iframe 
-                src={`https://www.youtube.com/embed/${youtubeVideoId}`}
+                src={`https://www.youtube.com/embed/${youtubeVideoId}?rel=0&modestbranding=1`}
                 title={`${location.title} Trailer`}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

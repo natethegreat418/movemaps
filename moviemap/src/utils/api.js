@@ -7,19 +7,105 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
  */
 export const fetchLocations = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/locations`);
+    console.log(`Fetching locations from: ${API_BASE_URL}/locations`);
+    
+    const response = await fetch(`${API_BASE_URL}/locations`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      // Include credentials if your API requires authentication
+      // credentials: 'include', 
+    });
+    
+    console.log('API Response status:', response.status);
     
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      const errorText = await response.text();
+      console.error('API error response:', errorText);
+      throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorText}`);
     }
     
     const data = await response.json();
-    return data.locations || [];
+    console.log('API returned data:', data);
+    
+    if (!data.locations) {
+      console.warn('API response missing locations array');
+      return [];
+    }
+    
+    return data.locations;
   } catch (error) {
     console.error('Error fetching locations:', error);
-    // Return sample data for development
+    
+    // Fallback to hardcoded data for development/demo purposes
+    console.log('Using fallback sample data');
     return getSampleLocations();
   }
+};
+
+/**
+ * Sample location data used as fallback when API is unavailable
+ */
+const getSampleLocations = () => {
+  return [
+    {
+      id: 1,
+      title: 'The Dark Knight',
+      year: 2008,
+      type: 'movie',
+      lat: 41.8781,
+      lng: -87.6298,
+      locationName: 'Chicago, Illinois (Lower Wacker Drive)',
+      trailerUrl: 'https://www.youtube.com/watch?v=EXeTwQWrcwY',
+      imdbLink: 'https://www.imdb.com/title/tt0468569/'
+    },
+    {
+      id: 2,
+      title: 'La La Land',
+      year: 2016,
+      type: 'movie',
+      lat: 34.0675,
+      lng: -118.2987,
+      locationName: 'Griffith Observatory, Los Angeles',
+      trailerUrl: 'https://www.youtube.com/watch?v=0pdqf4P9MB8',
+      imdbLink: 'https://www.imdb.com/title/tt3783958/'
+    },
+    {
+      id: 3,
+      title: 'Lost in Translation',
+      year: 2003,
+      type: 'movie',
+      lat: 35.6895,
+      lng: 139.6917,
+      locationName: 'Park Hyatt Tokyo, Shinjuku',
+      trailerUrl: 'https://www.youtube.com/watch?v=W6iVPCRflQM',
+      imdbLink: 'https://www.imdb.com/title/tt0335266/'
+    },
+    {
+      id: 4,
+      title: 'Game of Thrones',
+      year: 2011,
+      type: 'tv',
+      lat: 42.6507,
+      lng: 18.0944,
+      locationName: 'Dubrovnik, Croatia (King\'s Landing)',
+      trailerUrl: 'https://www.youtube.com/watch?v=KPLWWIOCOOQ',
+      imdbLink: 'https://www.imdb.com/title/tt0944947/'
+    },
+    {
+      id: 5,
+      title: 'Inception',
+      year: 2010,
+      type: 'movie',
+      lat: 43.7800,
+      lng: 11.2471,
+      locationName: 'Ponte Vecchio, Florence, Italy',
+      trailerUrl: 'https://www.youtube.com/watch?v=YoHD9XEInc0',
+      imdbLink: 'https://www.imdb.com/title/tt1375666/'
+    }
+  ];
 };
 
 /**
@@ -29,12 +115,24 @@ export const fetchLocations = async () => {
  */
 export const submitLocation = async (locationData) => {
   try {
+    // Convert field names to match the API's expected format
+    const formattedData = {
+      title: locationData.title,
+      type: locationData.type,
+      lat: locationData.lat,
+      lng: locationData.lng,
+      trailer_url: locationData.trailerUrl,
+      imdb_link: locationData.imdbLink,
+      year: locationData.year,
+      location_name: locationData.locationName
+    };
+    
     const response = await fetch(`${API_BASE_URL}/submit-location`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(locationData),
+      body: JSON.stringify(formattedData),
     });
     
     if (!response.ok) {
@@ -47,58 +145,4 @@ export const submitLocation = async (locationData) => {
     console.error('Error submitting location:', error);
     throw error;
   }
-};
-
-/**
- * Sample location data for development
- * @returns {Array} Array of sample location objects
- */
-const getSampleLocations = () => {
-  return [
-    {
-      id: 1,
-      title: 'The Dark Knight',
-      type: 'movie',
-      lat: 41.8781,
-      lng: -87.6298,
-      trailer_url: 'https://www.youtube.com/watch?v=EXeTwQWrcwY',
-      imdb_link: 'https://www.imdb.com/title/tt0468569/'
-    },
-    {
-      id: 2,
-      title: 'La La Land',
-      type: 'movie',
-      lat: 34.0522,
-      lng: -118.2437,
-      trailer_url: 'https://www.youtube.com/watch?v=0pdqf4P9MB8',
-      imdb_link: 'https://www.imdb.com/title/tt3783958/'
-    },
-    {
-      id: 3,
-      title: 'Lost in Translation',
-      type: 'movie',
-      lat: 35.6762,
-      lng: 139.6503,
-      trailer_url: 'https://www.youtube.com/watch?v=W6iVPCRflQM',
-      imdb_link: 'https://www.imdb.com/title/tt0335266/'
-    },
-    {
-      id: 4,
-      title: 'Game of Thrones',
-      type: 'tv',
-      lat: 42.6507,
-      lng: 18.0944,
-      trailer_url: 'https://www.youtube.com/watch?v=KPLWWIOCOOQ',
-      imdb_link: 'https://www.imdb.com/title/tt0944947/'
-    },
-    {
-      id: 5,
-      title: 'Inception',
-      type: 'movie',
-      lat: 37.7749,
-      lng: -122.4194,
-      trailer_url: 'https://www.youtube.com/watch?v=YoHD9XEInc0',
-      imdb_link: 'https://www.imdb.com/title/tt1375666/'
-    }
-  ];
 };

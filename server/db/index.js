@@ -15,20 +15,61 @@ const db = new Database(dbPath, { verbose: console.log });
 // Helper to make async queries more like pg
 const query = (sql, params = []) => {
   try {
+    console.log(`Executing query: ${sql}`);
+    console.log('With parameters:', params);
+    
     // For SELECT queries
     if (sql.trim().toUpperCase().startsWith('SELECT')) {
       const stmt = db.prepare(sql);
-      return { rows: stmt.all(params) };
+      
+      let result;
+      try {
+        // Handle array of parameters vs individual parameters
+        if (Array.isArray(params) && params.length > 0) {
+          result = stmt.all(params);
+        } else {
+          result = stmt.all();
+        }
+        
+        console.log(`Query returned ${result ? result.length : 0} rows`);
+        return { 
+          rows: result,
+          // Some useful properties for better compatibility
+          rowCount: result ? result.length : 0
+        };
+      } catch (stmtError) {
+        console.error('Error executing statement:', stmtError);
+        return { rows: [], rowCount: 0 };
+      }
     }
     // For INSERT, UPDATE, DELETE queries
     else {
       const stmt = db.prepare(sql);
-      const result = stmt.run(params);
-      return { rowCount: result.changes };
+      
+      let result;
+      try {
+        // Handle array of parameters vs individual parameters
+        if (Array.isArray(params) && params.length > 0) {
+          result = stmt.run(params);
+        } else {
+          result = stmt.run();
+        }
+        
+        console.log(`Query affected ${result ? result.changes : 0} rows`);
+        return { 
+          rowCount: result ? result.changes : 0,
+          changes: result ? result.changes : 0,
+          // Add some useful properties
+          rows: []
+        };
+      } catch (stmtError) {
+        console.error('Error executing statement:', stmtError);
+        return { rows: [], rowCount: 0, changes: 0 };
+      }
     }
   } catch (err) {
     console.error('SQLite query error:', err);
-    throw err;
+    return { rows: [], rowCount: 0, error: err.message };
   }
 };
 
@@ -46,7 +87,9 @@ const initDb = () => {
         lat REAL NOT NULL,
         lng REAL NOT NULL,
         trailer_url TEXT,
-        imdb_link TEXT
+        imdb_link TEXT,
+        year INTEGER,
+        location_name TEXT
       )
     `);
 
@@ -60,6 +103,8 @@ const initDb = () => {
         lng REAL NOT NULL,
         trailer_url TEXT,
         imdb_link TEXT,
+        year INTEGER,
+        location_name TEXT,
         status TEXT DEFAULT 'pending'
       )
     `);

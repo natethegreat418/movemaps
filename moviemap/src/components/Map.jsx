@@ -3,78 +3,41 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '../styles/Map.css';
 import LocationModal from './LocationModal';
-
-// Hardcoded list of 5 filming locations
-const FILMING_LOCATIONS = [
-  {
-    id: 1,
-    title: 'The Dark Knight',
-    year: 2008,
-    type: 'movie',
-    lat: 41.8781,
-    lng: -87.6298,
-    locationName: 'Chicago, Illinois (Lower Wacker Drive)',
-    trailerUrl: 'https://www.youtube.com/watch?v=EXeTwQWrcwY',
-    imdbLink: 'https://www.imdb.com/title/tt0468569/'
-  },
-  {
-    id: 2,
-    title: 'La La Land',
-    year: 2016,
-    type: 'movie',
-    lat: 34.0675,
-    lng: -118.2987,
-    locationName: 'Griffith Observatory, Los Angeles',
-    trailerUrl: 'https://www.youtube.com/watch?v=0pdqf4P9MB8',
-    imdbLink: 'https://www.imdb.com/title/tt3783958/'
-  },
-  {
-    id: 3,
-    title: 'Lost in Translation',
-    year: 2003,
-    type: 'movie',
-    lat: 35.6895,
-    lng: 139.6917,
-    locationName: 'Park Hyatt Tokyo, Shinjuku',
-    trailerUrl: 'https://www.youtube.com/watch?v=W6iVPCRflQM',
-    imdbLink: 'https://www.imdb.com/title/tt0335266/'
-  },
-  {
-    id: 4,
-    title: 'Game of Thrones',
-    year: 2011,
-    type: 'tv',
-    lat: 42.6507,
-    lng: 18.0944,
-    locationName: 'Dubrovnik, Croatia (King\'s Landing)',
-    trailerUrl: 'https://www.youtube.com/watch?v=KPLWWIOCOOQ',
-    imdbLink: 'https://www.imdb.com/title/tt0944947/'
-  },
-  {
-    id: 5,
-    title: 'Inception',
-    year: 2010,
-    type: 'movie',
-    lat: 43.7800,
-    lng: 11.2471,
-    locationName: 'Ponte Vecchio, Florence, Italy',
-    trailerUrl: 'https://www.youtube.com/watch?v=YoHD9XEInc0',
-    imdbLink: 'https://www.imdb.com/title/tt1375666/'
-  }
-];
+import { fetchLocations } from '../utils/api';
 
 const Map = () => {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const markersRef = useRef([]);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [locations] = useState(FILMING_LOCATIONS);
+  const [locations, setLocations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   
   // Default map center coordinates (World view)
   const [lng, setLng] = useState(0);
   const [lat, setLat] = useState(30);
   const [zoom, setZoom] = useState(2); // Start zoomed out to see the world
+
+  // Fetch locations from API
+  useEffect(() => {
+    const getLocations = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchLocations();
+        setLocations(data);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch locations:', err);
+        setError('Failed to load filming locations');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getLocations();
+  }, []);
 
   // Initialize map
   useEffect(() => {
@@ -188,11 +151,18 @@ const Map = () => {
           Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
         </div>
         <div className="map-location-count">
-          {`${locations.length} filming locations found`}
+          {loading ? 'Loading locations...' : `${locations.length} filming locations found`}
         </div>
       </div>
       
-      <div ref={mapContainer} className="map-container" />
+      {error && <div className="map-error">{error}</div>}
+      
+      <div ref={mapContainer} className="map-container">
+        {loading && <div className="map-loading-overlay">
+          <div className="map-loading-spinner"></div>
+          <p>Loading filming locations...</p>
+        </div>}
+      </div>
       
       {/* Location modal */}
       {selectedLocation && (
