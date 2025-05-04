@@ -1,0 +1,157 @@
+.map-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-container {
+  width: 100%;
+  height: 600px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.map-info {
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: monospace;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #333;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.map-location-count {
+  font-weight: bold;
+}
+
+.map-error {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+/* Custom Markers */
+.map-marker {
+  width: 30px;
+  height: 42px;
+  cursor: pointer;
+}
+
+.marker-pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  background: #c30b82;
+  position: absolute;
+  transform: rotate(-45deg);
+  left: 50%;
+  top: 50%;
+  margin: -15px 0 0 -15px;
+}
+
+.marker-pin::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  margin: 5px 0 0 5px;
+  background: #ffffff;
+  position: absolute;
+  border-radius: 50%;
+}
+
+/* Different colors for movie vs TV */
+.marker-movie .marker-pin {
+  background: #1a73e8; /* Blue for movies */
+}
+
+.marker-tv .marker-pin {
+  background: #34a853; /* Green for TV shows */
+}
+
+/* Popup styles */
+.mapboxgl-popup {
+  max-width: 300px;
+}
+
+.mapboxgl-popup-content {
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.mapboxgl-popup-content h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #2d3748;
+  border-bottom: 1px solid #edf2f7;
+  padding-bottom: 8px;
+}
+
+.mapboxgl-popup-content p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.popup-links {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.popup-links a {
+  display: inline-block;
+  padding: 5px 10px;
+  background: #f1f3f4;
+  color: #1a73e8;
+  border-radius: 4px;
+  font-size: 12px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.popup-links a:hover {
+  background: #e8f0fe;
+  text-decoration: none;
+}
+
+/* For responsive design */
+@media (max-width: 768px) {
+  .map-container {
+    height: 400px;
+  }
+  
+  .map-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .map-coordinates {
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-container {
+    height: 350px;
+  }
+  
+  .map-info {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  
+  .mapboxgl-popup {
+    max-width: 250px;
+  }
+}
