@@ -1,0 +1,3 @@
+# Netlify redirects file for single-page applications
+# Redirect all routes to index.html with a 200 response code
+/*    /index.html   200
