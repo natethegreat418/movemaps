@@ -2,40 +2,79 @@ import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '../styles/Map.css';
-import { fetchLocations } from '../utils/api';
+import LocationModal from './LocationModal';
+
+// Hardcoded list of 5 filming locations
+const FILMING_LOCATIONS = [
+  {
+    id: 1,
+    title: 'The Dark Knight',
+    year: 2008,
+    type: 'movie',
+    lat: 41.8781,
+    lng: -87.6298,
+    locationName: 'Chicago, Illinois (Lower Wacker Drive)',
+    trailerUrl: 'https://www.youtube.com/watch?v=EXeTwQWrcwY',
+    imdbLink: 'https://www.imdb.com/title/tt0468569/'
+  },
+  {
+    id: 2,
+    title: 'La La Land',
+    year: 2016,
+    type: 'movie',
+    lat: 34.0675,
+    lng: -118.2987,
+    locationName: 'Griffith Observatory, Los Angeles',
+    trailerUrl: 'https://www.youtube.com/watch?v=0pdqf4P9MB8',
+    imdbLink: 'https://www.imdb.com/title/tt3783958/'
+  },
+  {
+    id: 3,
+    title: 'Lost in Translation',
+    year: 2003,
+    type: 'movie',
+    lat: 35.6895,
+    lng: 139.6917,
+    locationName: 'Park Hyatt Tokyo, Shinjuku',
+    trailerUrl: 'https://www.youtube.com/watch?v=W6iVPCRflQM',
+    imdbLink: 'https://www.imdb.com/title/tt0335266/'
+  },
+  {
+    id: 4,
+    title: 'Game of Thrones',
+    year: 2011,
+    type: 'tv',
+    lat: 42.6507,
+    lng: 18.0944,
+    locationName: 'Dubrovnik, Croatia (King\'s Landing)',
+    trailerUrl: 'https://www.youtube.com/watch?v=KPLWWIOCOOQ',
+    imdbLink: 'https://www.imdb.com/title/tt0944947/'
+  },
+  {
+    id: 5,
+    title: 'Inception',
+    year: 2010,
+    type: 'movie',
+    lat: 43.7800,
+    lng: 11.2471,
+    locationName: 'Ponte Vecchio, Florence, Italy',
+    trailerUrl: 'https://www.youtube.com/watch?v=YoHD9XEInc0',
+    imdbLink: 'https://www.imdb.com/title/tt1375666/'
+  }
+];
 
 const Map = () => {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const markersRef = useRef([]);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [locations] = useState(FILMING_LOCATIONS);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   
-  // Default map center coordinates (San Francisco)
-  const [lng, setLng] = useState(-122.4194);
-  const [lat, setLat] = useState(37.7749);
-  const [zoom, setZoom] = useState(3); // Start zoomed out to see more locations
-
-  // Fetch locations from API
-  useEffect(() => {
-    const getLocations = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchLocations();
-        setLocations(data);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch locations:', err);
-        setError('Failed to load filming locations');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getLocations();
-  }, []);
+  // Default map center coordinates (World view)
+  const [lng, setLng] = useState(0);
+  const [lat, setLat] = useState(30);
+  const [zoom, setZoom] = useState(2); // Start zoomed out to see the world
 
   // Initialize map
   useEffect(() => {
@@ -107,22 +146,15 @@ const Map = () => {
       // Add type class (movie or tv)
       markerEl.classList.add(`marker-${location.type}`);
 
-      // Create popup with location info
-      const popup = new mapboxgl.Popup({ offset: 25 })
-        .setHTML(`
-          <h3>${location.title}</h3>
-          <p>Type: ${location.type === 'movie' ? 'Movie' : 'TV Show'}</p>
-          <div class="popup-links">
-            ${location.trailer_url ? `<a href="${location.trailer_url}" target="_blank" rel="noopener noreferrer">Watch Trailer</a>` : ''}
-            ${location.imdb_link ? `<a href="${location.imdb_link}" target="_blank" rel="noopener noreferrer">IMDb Page</a>` : ''}
-          </div>
-        `);
-
-      // Create and add the marker
+      // Create and add the marker (without popup)
       const marker = new mapboxgl.Marker(markerEl)
         .setLngLat([location.lng, location.lat])
-        .setPopup(popup)
         .addTo(map.current);
+
+      // Add click event to open modal instead of popup
+      markerEl.addEventListener('click', () => {
+        setSelectedLocation(location);
+      });
 
       // Store marker reference for later cleanup
       markersRef.current.push(marker);
@@ -156,11 +188,19 @@ const Map = () => {
           Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
         </div>
         <div className="map-location-count">
-          {loading ? 'Loading locations...' : `${locations.length} filming locations found`}
+          {`${locations.length} filming locations found`}
         </div>
       </div>
-      {error && <div className="map-error">{error}</div>}
+      
       <div ref={mapContainer} className="map-container" />
+      
+      {/* Location modal */}
+      {selectedLocation && (
+        <LocationModal 
+          location={selectedLocation} 
+          onClose={() => setSelectedLocation(null)} 
+        />
+      )}
     </div>
   );
 };
