@@ -10,7 +10,8 @@ function Test() {
   const [debugInfo, setDebugInfo] = useState(null);
 
   // Direct function URLs to bypass any redirects
-  const directFunctionUrl = 'https://moviemaps.net/.netlify/functions/locations-list';
+  // Use environment variable or fallback to hardcoded URL
+  const directFunctionUrl = import.meta.env.VITE_FUNCTION_URL || 'https://moviemaps.net/.netlify/functions/locations-list';
   const staticFunctionUrl = 'https://moviemaps.net/.netlify/functions/static-locations';
 
   useEffect(() => {
@@ -41,7 +42,20 @@ function Test() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         
-        const data = await response.json();
+        // Check content type to avoid parsing HTML as JSON
+        const contentType = response.headers.get('content-type');
+        let data;
+        
+        if (!contentType || !contentType.includes('application/json')) {
+          console.error(`Received non-JSON response (${contentType})`);
+          // Log the first 100 characters of response for debugging
+          const text = await response.text();
+          console.error(`Response starts with: ${text.substring(0, 100)}...`);
+          throw new Error(`Expected JSON but got ${contentType || 'unknown'} response type`);
+        } else {
+          data = await response.json();
+        }
+          
         console.log('Received data:', data);
         
         if (data.locations && Array.isArray(data.locations)) {
@@ -74,7 +88,20 @@ function Test() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         
-        const data = await response.json();
+        // Check content type to avoid parsing HTML as JSON
+        const contentType = response.headers.get('content-type');
+        let data;
+        
+        if (!contentType || !contentType.includes('application/json')) {
+          console.error(`Received non-JSON response from static API (${contentType})`);
+          // Log the first 100 characters of response for debugging
+          const text = await response.text();
+          console.error(`Static response starts with: ${text.substring(0, 100)}...`);
+          throw new Error(`Expected JSON but got ${contentType || 'unknown'} response type from static API`);
+        } else {
+          data = await response.json();
+        }
+        
         console.log('Received static data:', data);
         
         if (data.locations && Array.isArray(data.locations)) {

@@ -1,6 +1,8 @@
-// Static hard-coded locations
+// Static hard-coded locations - NO DEPENDENCIES
 exports.handler = async function() {
   try {
+    console.log('Starting static-locations function with no dependencies');
+    
     // Create a larger list of locations to ensure we're bypassing any caching issues
     const staticLocations = Array.from({ length: 40 }, (_, i) => ({
       id: `static-${i+1}`,
@@ -14,6 +16,8 @@ exports.handler = async function() {
       year: 2020 + (i % 5)
     }));
     
+    console.log(`Generated ${staticLocations.length} static test locations`);
+    
     return {
       statusCode: 200,
       headers: {
@@ -24,10 +28,12 @@ exports.handler = async function() {
       body: JSON.stringify({
         count: staticLocations.length,
         locations: staticLocations,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        source: 'static-locations function (no dependencies)'
       })
     };
   } catch (error) {
+    console.error('Error in static-locations function:', error);
     return {
       statusCode: 500,
       headers: {
@@ -36,7 +42,8 @@ exports.handler = async function() {
       },
       body: JSON.stringify({
         error: error.message,
-        stack: error.stack
+        stack: error.stack,
+        source: 'static-locations function'
       })
     };
   }

@@ -7,6 +7,8 @@ import { getApiUrl, shouldUseSampleData } from './env';
 const API_CONFIG = {
   baseUrl: getApiUrl() || 'http://localhost:3000/api',
   timeout: 5000, // 5 second timeout for API requests
+  // Use static locations function as a direct fallback
+  staticFunctionUrl: 'https://moviemaps.net/.netlify/functions/static-locations',
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
@@ -61,6 +63,34 @@ export const fetchLocations = async () => {
     console.log('API URL configured:', API_CONFIG.baseUrl);
     console.log('Should use sample data:', shouldUseSampleData());
     
+    // First try the static locations function directly
+    try {
+      console.log('Attempting to fetch from static locations function:', API_CONFIG.staticFunctionUrl);
+      const response = await fetch(API_CONFIG.staticFunctionUrl, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      // Check content type to avoid parsing HTML as JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        console.log('Static locations function response:', data);
+        
+        if (data.locations && Array.isArray(data.locations)) {
+          console.log(`Retrieved ${data.locations.length} locations from static function`);
+          return data.locations;
+        }
+      } else {
+        console.warn(`Expected JSON but got ${contentType || 'unknown'} response from static function`);
+      }
+    } catch (staticError) {
+      console.warn('Error fetching from static function:', staticError.message);
+    }
+    
+    // Fallback to normal API flow
     // Check if we should use sample data based on environment
     if (shouldUseSampleData() && !API_CONFIG.baseUrl) {
       console.log('No API URL configured. Using sample data.');
