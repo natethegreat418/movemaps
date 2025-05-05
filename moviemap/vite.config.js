@@ -3,14 +3,23 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // Force production mode when running in CI/CD environments
+  // Get the mode from environment variable or command line argument
   const isProd = mode === 'production' || process.env.NODE_ENV === 'production'
   const buildMode = isProd ? 'production' : 'development'
   
   console.log(`Building in ${buildMode} mode...`)
   
   return {
-    plugins: [react()],
+    plugins: [react({
+      // Use the production JSX transform in production mode
+      // This prevents "jsxDEV is not a function" errors
+      jsxRuntime: isProd ? 'automatic' : 'classic',
+      // Ensure we're using the right dev/prod React settings
+      jsxImportSource: 'react',
+      babel: {
+        plugins: isProd ? [] : ['react-refresh/babel']
+      }
+    })],
     base: './', // Use relative paths for assets
     
     // Configure build options
