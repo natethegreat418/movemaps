@@ -1,21 +1,13 @@
 import { useState, useEffect } from 'react';
+import { fetchAllTestEndpoints } from '../utils/testApi';
 
 function Test() {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [locations, setLocations] = useState([]);
-  const [staticLocations, setStaticLocations] = useState([]);
-  const [staticLoading, setStaticLoading] = useState(true);
-  const [staticError, setStaticError] = useState(null);
+  const [results, setResults] = useState({});
   const [debugInfo, setDebugInfo] = useState(null);
 
-  // Direct function URLs to bypass any redirects
-  // Use environment variable or fallback to hardcoded URL
-  const directFunctionUrl = import.meta.env.VITE_FUNCTION_URL || 'https://moviemaps.net/.netlify/functions/locations-list';
-  const staticFunctionUrl = 'https://moviemaps.net/.netlify/functions/static-locations';
-
   useEffect(() => {
-    async function fetchData() {
+    async function fetchAllData() {
       try {
         setLoading(true);
         
@@ -29,96 +21,20 @@ function Test() {
         };
         setDebugInfo(env);
         
-        console.log('Test page fetching from:', directFunctionUrl);
+        console.log('Test page fetching from all endpoints...');
         
-        const response = await fetch(directFunctionUrl, {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        
-        // Check content type to avoid parsing HTML as JSON
-        const contentType = response.headers.get('content-type');
-        let data;
-        
-        if (!contentType || !contentType.includes('application/json')) {
-          console.error(`Received non-JSON response (${contentType})`);
-          // Log the first 100 characters of response for debugging
-          const text = await response.text();
-          console.error(`Response starts with: ${text.substring(0, 100)}...`);
-          throw new Error(`Expected JSON but got ${contentType || 'unknown'} response type`);
-        } else {
-          data = await response.json();
-        }
-          
-        console.log('Received data:', data);
-        
-        if (data.locations && Array.isArray(data.locations)) {
-          setLocations(data.locations);
-        } else {
-          setError('Invalid response format');
-        }
+        // Fetch from all test endpoints in parallel
+        const allResults = await fetchAllTestEndpoints();
+        console.log('Results from all endpoints:', allResults);
+        setResults(allResults);
       } catch (err) {
-        console.error('Fetch error:', err);
-        setError(err.message);
+        console.error('Test page error:', err);
       } finally {
         setLoading(false);
       }
     }
     
-    async function fetchStaticData() {
-      try {
-        setStaticLoading(true);
-        
-        console.log('Test page fetching static data from:', staticFunctionUrl);
-        
-        const response = await fetch(staticFunctionUrl, {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        
-        // Check content type to avoid parsing HTML as JSON
-        const contentType = response.headers.get('content-type');
-        let data;
-        
-        if (!contentType || !contentType.includes('application/json')) {
-          console.error(`Received non-JSON response from static API (${contentType})`);
-          // Log the first 100 characters of response for debugging
-          const text = await response.text();
-          console.error(`Static response starts with: ${text.substring(0, 100)}...`);
-          throw new Error(`Expected JSON but got ${contentType || 'unknown'} response type from static API`);
-        } else {
-          data = await response.json();
-        }
-        
-        console.log('Received static data:', data);
-        
-        if (data.locations && Array.isArray(data.locations)) {
-          setStaticLocations(data.locations);
-        } else {
-          setStaticError('Invalid response format');
-        }
-      } catch (err) {
-        console.error('Static fetch error:', err);
-        setStaticError(err.message);
-      } finally {
-        setStaticLoading(false);
-      }
-    }
-    
-    fetchData();
-    fetchStaticData();
+    fetchAllData();
   }, []);
 
   return (
@@ -132,69 +48,102 @@ function Test() {
         </div>
       )}
       
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        <div style={{ flex: '1 1 400px' }}>
-          <h2>Firestore Locations ({locations.length})</h2>
-          {loading ? (
-            <p>Loading locations...</p>
-          ) : error ? (
-            <div style={{ color: 'red' }}>
-              <h3>Error</h3>
-              <p>{error}</p>
-            </div>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid #ddd' }}>
-                  <th style={{ textAlign: 'left', padding: '8px' }}>ID</th>
-                  <th style={{ textAlign: 'left', padding: '8px' }}>Title</th>
-                  <th style={{ textAlign: 'left', padding: '8px' }}>Type</th>
-                </tr>
-              </thead>
-              <tbody>
-                {locations.map(location => (
-                  <tr key={location.id} style={{ borderBottom: '1px solid #ddd' }}>
-                    <td style={{ padding: '8px' }}>{location.id}</td>
-                    <td style={{ padding: '8px' }}>{location.title}</td>
-                    <td style={{ padding: '8px' }}>{location.type}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <p>Testing all API endpoints...</p>
         </div>
-        
-        <div style={{ flex: '1 1 400px' }}>
-          <h2>Static Test Locations ({staticLocations.length})</h2>
-          {staticLoading ? (
-            <p>Loading static data...</p>
-          ) : staticError ? (
-            <div style={{ color: 'red' }}>
-              <h3>Error</h3>
-              <p>{staticError}</p>
-            </div>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid #ddd' }}>
-                  <th style={{ textAlign: 'left', padding: '8px' }}>ID</th>
-                  <th style={{ textAlign: 'left', padding: '8px' }}>Title</th>
-                  <th style={{ textAlign: 'left', padding: '8px' }}>Type</th>
+      ) : (
+        <div>
+          <h2>API Endpoint Test Results</h2>
+          
+          {/* Main table of all endpoint results */}
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
+            <thead>
+              <tr style={{ background: '#f0f0f0' }}>
+                <th style={{ padding: '8px', textAlign: 'left' }}>Endpoint</th>
+                <th style={{ padding: '8px', textAlign: 'left' }}>Status</th>
+                <th style={{ padding: '8px', textAlign: 'left' }}>Locations Count</th>
+                <th style={{ padding: '8px', textAlign: 'left' }}>Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(results).map(([name, data]) => (
+                <tr key={name} style={{ borderBottom: '1px solid #ddd' }}>
+                  <td style={{ padding: '8px' }}><b>{name}</b></td>
+                  <td style={{ padding: '8px', color: data ? 'green' : 'red' }}>
+                    {data ? 'Success' : 'Failed'}
+                  </td>
+                  <td style={{ padding: '8px' }}>
+                    {data?.locations?.length || 0}
+                  </td>
+                  <td style={{ padding: '8px' }}>
+                    {data?.source || 'N/A'}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {staticLocations.map(location => (
-                  <tr key={location.id} style={{ borderBottom: '1px solid #ddd' }}>
-                    <td style={{ padding: '8px' }}>{location.id}</td>
-                    <td style={{ padding: '8px' }}>{location.title}</td>
-                    <td style={{ padding: '8px' }}>{location.type}</td>
+              ))}
+            </tbody>
+          </table>
+          
+          {/* Detailed results for each endpoint */}
+          {Object.entries(results).map(([name, data]) => data?.locations?.length > 0 && (
+            <div key={name} style={{ marginBottom: '30px' }}>
+              <h3>{name} ({data.locations.length} locations)</h3>
+              
+              {data.error && (
+                <div style={{ color: 'red', marginBottom: '10px' }}>
+                  <p><b>Error:</b> {data.error}</p>
+                </div>
+              )}
+              
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #ddd' }}>
+                    <th style={{ textAlign: 'left', padding: '8px' }}>ID</th>
+                    <th style={{ textAlign: 'left', padding: '8px' }}>Title</th>
+                    <th style={{ textAlign: 'left', padding: '8px' }}>Type</th>
+                    <th style={{ textAlign: 'left', padding: '8px' }}>Location</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {data.locations.map(location => (
+                    <tr key={location.id} style={{ borderBottom: '1px solid #ddd' }}>
+                      <td style={{ padding: '8px' }}>{location.id}</td>
+                      <td style={{ padding: '8px' }}>{location.title}</td>
+                      <td style={{ padding: '8px' }}>{location.type}</td>
+                      <td style={{ padding: '8px' }}>{location.locationName}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+          
+          {/* Error details for failed endpoints */}
+          <h3>Endpoint Errors</h3>
+          {Object.entries(results).map(([name, data]) => (
+            data?.error && (
+              <div key={`${name}-error`} style={{ 
+                marginBottom: '15px', 
+                padding: '10px', 
+                background: '#fff0f0', 
+                borderLeft: '3px solid #ff0000',
+                borderRadius: '3px'
+              }}>
+                <h4>{name}</h4>
+                <p><b>Error:</b> {data.error}</p>
+                {data.stack && (
+                  <details>
+                    <summary>Stack trace</summary>
+                    <pre style={{ maxHeight: '200px', overflow: 'auto', fontSize: '12px' }}>
+                      {data.stack}
+                    </pre>
+                  </details>
+                )}
+              </div>
+            )
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }

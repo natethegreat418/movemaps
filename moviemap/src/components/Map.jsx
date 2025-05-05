@@ -30,7 +30,7 @@ const Map = () => {
         setError(null);
       } catch (err) {
         console.error('Failed to fetch locations:', err);
-        setError('Failed to load filming locations');
+        setError(`Failed to load filming locations: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -156,7 +156,13 @@ const Map = () => {
         </div>
       </div>
       
-      {error && <div className="map-error">{error}</div>}
+      {error && (
+        <div className="map-error">
+          <h3>Error Loading Locations</h3>
+          <p>{error}</p>
+          <p>Please check your internet connection and try again, or contact support if the issue persists.</p>
+        </div>
+      )}
       
       <div ref={mapContainer} className="map-container">
         {loading && <div className="map-loading-overlay">

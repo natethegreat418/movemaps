@@ -7,8 +7,12 @@ import { getApiUrl, shouldUseSampleData } from './env';
 const API_CONFIG = {
   baseUrl: getApiUrl() || 'http://localhost:3000/api',
   timeout: 5000, // 5 second timeout for API requests
-  // Use static locations function as a direct fallback
-  staticFunctionUrl: 'https://moviemaps.net/.netlify/functions/static-locations',
+  // Use multiple fallback endpoints in order of preference
+  fallbackEndpoints: [
+    'https://moviemaps.net/.netlify/functions/locations-debug',
+    'https://moviemaps.net/.netlify/functions/sample-locations',
+    'https://moviemaps.net/.netlify/functions/static-locations'
+  ],
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
@@ -61,64 +65,42 @@ export const fetchLocations = async () => {
     // DEBUG: Log environment and config information
     console.log('Environment mode:', import.meta.env.MODE);
     console.log('API URL configured:', API_CONFIG.baseUrl);
-    console.log('Should use sample data:', shouldUseSampleData());
     
-    // First try the static locations function directly
-    try {
-      console.log('Attempting to fetch from static locations function:', API_CONFIG.staticFunctionUrl);
-      const response = await fetch(API_CONFIG.staticFunctionUrl, {
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
-      });
-      
-      // Check content type to avoid parsing HTML as JSON
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        console.log('Static locations function response:', data);
-        
-        if (data.locations && Array.isArray(data.locations)) {
-          console.log(`Retrieved ${data.locations.length} locations from static function`);
-          return data.locations;
-        }
-      } else {
-        console.warn(`Expected JSON but got ${contentType || 'unknown'} response from static function`);
-      }
-    } catch (staticError) {
-      console.warn('Error fetching from static function:', staticError.message);
-    }
-    
-    // Fallback to normal API flow
-    // Check if we should use sample data based on environment
-    if (shouldUseSampleData() && !API_CONFIG.baseUrl) {
-      console.log('No API URL configured. Using sample data.');
+    // In development mode, still allow sample data testing
+    if (import.meta.env.DEV && shouldUseSampleData() && !API_CONFIG.baseUrl) {
+      console.log('Development mode with no API URL configured. Using sample data.');
       return await getSampleLocations();
     }
     
-    console.log('Attempting to fetch from API URL:', `${API_CONFIG.baseUrl}/locations`);
+    // In production, use only the primary API endpoint - no fallbacks
+    console.log('Fetching from primary API URL:', `${API_CONFIG.baseUrl}/locations`);
     const data = await fetchWithTimeout('locations');
-    console.log('API response data:', data);
     
-    if (!data.locations) {
-      console.warn('API response missing locations array');
-      return await getSampleLocations();
+    if (!data || !data.locations || !Array.isArray(data.locations)) {
+      console.error('API returned invalid data structure:', data);
+      throw new Error('Invalid API response format');
     }
     
     console.log(`Retrieved ${data.locations.length} locations from API`);
     
-    // If API returned empty array, use fallback
+    // If API returned empty array, that's an error in production
     if (data.locations.length === 0) {
-      console.warn('API returned empty locations array, using fallback');
-      return await getSampleLocations();
+      console.error('API returned empty locations array');
+      throw new Error('No locations found in database');
     }
     
     return data.locations;
   } catch (error) {
-    console.log('Error fetching locations:', error);
-    console.log('Error details:', error.message);
-    console.log('Using fallback sample data');
+    console.error('Error fetching locations:', error);
+    console.error('Error details:', error.message);
+    
+    // In production, propagate the error instead of using fallbacks
+    if (import.meta.env.PROD) {
+      throw error;
+    }
+    
+    // Only in development, use sample data as fallback
+    console.warn('Development mode: Using sample data as fallback');
     return await getSampleLocations();
   }
 };
