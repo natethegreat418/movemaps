@@ -30,7 +30,7 @@ const initializeFirebase = () => {
   }
 };
 
-// Get all approved locations from Firestore
+// Get all locations from Firestore
 const getLocations = async () => {
   try {
     const app = initializeFirebase();
@@ -38,24 +38,37 @@ const getLocations = async () => {
       throw new Error('Firebase not initialized');
     }
     
+    console.log('Firebase initialized successfully');
+    
     const db = getFirestore();
     const locationsRef = db.collection('locations');
-    const snapshot = await locationsRef.where('approved', '==', true).get();
+    
+    // Get all locations without filtering by approval status
+    const snapshot = await locationsRef.get();
     
     if (snapshot.empty) {
+      console.log('No locations found in the database');
       return [];
     }
+    
+    console.log('Found locations in Firestore:', snapshot.size);
     
     const locations = [];
     snapshot.forEach(doc => {
       const data = doc.data();
+      
       // Convert Firestore timestamps to ISO strings if needed
+      if (data.created_at && typeof data.created_at.toDate === 'function') {
+        data.created_at = data.created_at.toDate().toISOString();
+      }
+      
       locations.push({
         id: doc.id,
         ...data
       });
     });
     
+    console.log('Returning', locations.length, 'locations');
     return locations;
   } catch (error) {
     console.error('Error getting locations:', error);
