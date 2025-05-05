@@ -56,22 +56,13 @@ const initializeFirebaseAdmin = () => {
       console.log(`Service account file not found at: ${serviceAccountPath}`);
     }
 
-    // Use development mock if in development environment
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(
-        'WARNING: Using mock Firebase Admin SDK in development mode. ' +
-        'For full functionality, provide service account credentials.'
-      );
-      
-      // Return minimal mock for development
-      return createMockAdmin();
-    }
+    // No longer using development mock - always require real credentials
+    console.warn(
+      'WARNING: Could not find service account credentials. ' +
+      'Please provide service account credentials for Firestore functionality.'
+    );
 
-    // For development environment, prefer the mock over ADC
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Skipping application default credentials in development environment');
-      return createMockAdmin();
-    }
+    // Always try to use application default credentials
     
     // Otherwise, try to use Application Default Credentials (for production environments)
     try {
@@ -85,28 +76,13 @@ const initializeFirebaseAdmin = () => {
     } catch (adcError) {
       console.error('Error initializing with application default credentials:', adcError.message);
       
-      // Fall back to mock if available
-      if (process.env.NODE_ENV === 'development') {
-        return createMockAdmin();
-      }
-      
       throw new Error('Failed to initialize Firebase Admin SDK. No valid credentials available.');
     }
   } catch (error) {
     console.error('Error initializing Firebase Admin SDK:', error);
     
-    // In development, create a mock Firebase admin with limited functionality
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(
-        'WARNING: Using mock Firebase Admin SDK in development. ' +
-        'Set FIREBASE_SERVICE_ACCOUNT_PATH environment variable for full functionality.'
-      );
-      
-      return createMockAdmin();
-    }
-    
-    console.log('Using mock Firebase Admin SDK for development due to initialization error');
-    return createMockAdmin();
+    // Always require real credentials
+    throw new Error('Failed to initialize Firebase Admin SDK. Please provide valid credentials.');
   }
 };
 

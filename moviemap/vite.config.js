@@ -13,11 +13,13 @@ export default defineConfig(({ mode }) => {
     plugins: [react({
       // Use the production JSX transform in production mode
       // This prevents "jsxDEV is not a function" errors
-      jsxRuntime: isProd ? 'automatic' : 'classic',
+      jsxRuntime: 'automatic',
       // Ensure we're using the right dev/prod React settings
       jsxImportSource: 'react',
+      // Completely remove babel config to prevent duplicates
       babel: {
-        plugins: isProd ? [] : ['react-refresh/babel']
+        babelrc: false,
+        configFile: false
       }
     })],
     base: './', // Use relative paths for assets

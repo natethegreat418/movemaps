@@ -35,28 +35,18 @@ export const getApiUrl = () => {
   const apiUrl = import.meta.env.VITE_API_URL || 
     (isDevelopment() ? 'http://localhost:3000/api' : null);
   
-  // In Netlify environment, automatically convert /api to /.netlify/functions/api-direct
-  if (apiUrl && apiUrl.includes('moviemaps.net/api')) {
-    const netlifyFunctionUrl = apiUrl.replace('/api', '/.netlify/functions/api-direct');
-    console.log('Converting API URL to Netlify Function URL:', netlifyFunctionUrl);
-    return netlifyFunctionUrl;
-  }
+  // No need to convert API URLs anymore
   
   return apiUrl;
 };
 
 /**
  * Check if we should load sample data
- * True if in development or if in production with no API URL configured
+ * Always returns false to ensure we always use the API
  */
 export const shouldUseSampleData = () => {
-  // Always enable sample data in development
-  if (isDevelopment()) {
-    return true;
-  }
-  
-  // In production, only use sample data if there's no API URL
-  return isProduction() && !getApiUrl();
+  // Disabled sample data for all environments
+  return false;
 };
 
 /**

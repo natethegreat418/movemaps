@@ -7,12 +7,8 @@ import { getApiUrl, shouldUseSampleData } from './env';
 const API_CONFIG = {
   baseUrl: getApiUrl() || 'http://localhost:3000/api',
   timeout: 5000, // 5 second timeout for API requests
-  // Use multiple fallback endpoints in order of preference
-  fallbackEndpoints: [
-    'https://moviemaps.net/.netlify/functions/locations-debug',
-    'https://moviemaps.net/.netlify/functions/sample-locations',
-    'https://moviemaps.net/.netlify/functions/static-locations'
-  ],
+  // No fallback endpoints - using local sample data for development
+  fallbackEndpoints: [],
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
@@ -66,14 +62,8 @@ export const fetchLocations = async () => {
     console.log('Environment mode:', import.meta.env.MODE);
     console.log('API URL configured:', API_CONFIG.baseUrl);
     
-    // In development mode, still allow sample data testing
-    if (import.meta.env.DEV && shouldUseSampleData() && !API_CONFIG.baseUrl) {
-      console.log('Development mode with no API URL configured. Using sample data.');
-      return await getSampleLocations();
-    }
-    
-    // In production, use only the primary API endpoint - no fallbacks
-    console.log('Fetching from primary API URL:', `${API_CONFIG.baseUrl}/locations`);
+    // Always use the API, regardless of environment
+    console.log('Fetching from API URL:', `${API_CONFIG.baseUrl}/locations`);
     const data = await fetchWithTimeout('locations');
     
     if (!data || !data.locations || !Array.isArray(data.locations)) {
@@ -83,7 +73,7 @@ export const fetchLocations = async () => {
     
     console.log(`Retrieved ${data.locations.length} locations from API`);
     
-    // If API returned empty array, that's an error in production
+    // If API returned empty array, that's an error
     if (data.locations.length === 0) {
       console.error('API returned empty locations array');
       throw new Error('No locations found in database');
@@ -94,47 +84,12 @@ export const fetchLocations = async () => {
     console.error('Error fetching locations:', error);
     console.error('Error details:', error.message);
     
-    // In production, propagate the error instead of using fallbacks
-    if (import.meta.env.PROD) {
-      throw error;
-    }
-    
-    // Only in development, use sample data as fallback
-    console.warn('Development mode: Using sample data as fallback');
-    return await getSampleLocations();
+    // Always propagate the error, no fallbacks
+    throw error;
   }
 };
 
-/**
- * Sample location data used as fallback only in development mode
- * or when API is unavailable in production with no API URL configured
- */
-// Use dynamic import for sample data to prevent bundling in production
-// when not explicitly referenced
-let sampleLocationsData = [];
-
-// Pre-load the sample data in development mode
-if (shouldUseSampleData()) {
-  import('../data/sampleLocations.json').then(module => {
-    sampleLocationsData = module.default;
-    console.log('Sample location data loaded for current environment');
-  });
-}
-
-const getSampleLocations = async () => {
-  // If sample data is not loaded yet, load it dynamically
-  if (sampleLocationsData.length === 0) {
-    try {
-      console.log('Dynamic loading of sample location data...');
-      const module = await import('../data/sampleLocations.json');
-      sampleLocationsData = module.default;
-    } catch (error) {
-      console.warn('Failed to load sample location data:', error);
-      return [];
-    }
-  }
-  return sampleLocationsData;
-};
+// Sample data loading has been removed to ensure the app always uses the API
 
 /**
  * Submit a new location to the API

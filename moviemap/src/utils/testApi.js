@@ -7,12 +7,8 @@ import { getApiUrl } from './env';
 const TEST_API_CONFIG = {
   baseUrl: getApiUrl() || 'http://localhost:3000/api',
   timeout: 5000, // 5 second timeout for API requests
-  // Multiple test endpoints to try
-  testEndpoints: [
-    'https://moviemaps.net/.netlify/functions/locations-debug',
-    'https://moviemaps.net/.netlify/functions/sample-locations',
-    'https://moviemaps.net/.netlify/functions/static-locations'
-  ],
+  // No test endpoints - removed Netlify functions
+  testEndpoints: [],
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
