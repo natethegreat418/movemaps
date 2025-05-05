@@ -1,0 +1,21 @@
+[build]
+  # Build the frontend
+  command = "cd moviemap && npm install && npm run build"
+  publish = "moviemap/dist"
+  functions = "netlify/functions"
+
+# Map /api/* requests to the Netlify Function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+# Handle SPA routing for the frontend
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build.environment]
+  # Disable secrets scanning for the Mapbox token
+  SECRETS_SCAN_OMIT_KEYS = "VITE_MAPBOX_TOKEN"
