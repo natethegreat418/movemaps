@@ -95,7 +95,7 @@ The backend can be deployed to platforms like Render, Heroku, or any Node.js hos
 
 ### Frontend (.env in /moviemap)
 
-- `VITE_API_URL` - Backend API URL
+- `VITE_API_URL` - Backend API URL (must include `/api` path, e.g., https://api.moviemaps.net/api)
 - `VITE_MAPBOX_TOKEN` - Mapbox GL JS access token
 - `VITE_FIREBASE_*` - Firebase configuration variables
 

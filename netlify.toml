@@ -2,6 +2,14 @@
   # Build the frontend with explicit production mode
   command = "cd moviemap && npm install && NODE_ENV=production VITE_MODE=production npx vite build --mode production"
   publish = "moviemap/dist"
+  functions = "netlify/functions"
+
+# Map /api/* requests to the Netlify Function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
 
 # Handle SPA routing for the frontend
 [[redirects]]
@@ -12,5 +20,7 @@
 [build.environment]
   # Force production mode for the frontend build
   NODE_ENV = "production"
+  # Set API URL for production
+  VITE_API_URL = "https://moviemaps.net/api"
   # Disable secrets scanning for the Mapbox token
-  SECRETS_SCAN_OMIT_KEYS = "VITE_MAPBOX_TOKEN"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_MAPBOX_TOKEN FIREBASE_SERVICE_ACCOUNT_JSON"
