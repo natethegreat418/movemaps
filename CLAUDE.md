@@ -6,14 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 MovieMap displays filming locations of famous movies/TV shows on an interactive map. Users can explore the map, view filming locations, and see details including trailers and IMDb links.
 
 ### Tech Stack
-- **Frontend**: React with Vite, Mapbox GL JS
+- **Frontend**: React with Vite, Mapbox GL JS, React Router
 - **Backend**: Node.js, Express
 - **Database**: Firebase Firestore (NoSQL cloud database)
 - **Authentication**: Firebase Auth for moderator access
 
 ## Architecture
 - **Database**: Cloud Firestore for all environments
-  - Development uses a local in-memory mock when credentials unavailable
+  - Development uses a local in-memory mock with pre-populated sample data
   - Production uses real Firestore with service account authentication
   - Collections: `locations`, `submissions`, `moderators`
 - **API Server**: Express.js REST API 
@@ -22,13 +22,14 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
   - Middleware for authentication and moderation checks
 - **Frontend**: React SPA with Mapbox integration
   - Component-based architecture
+  - React Router (HashRouter) for client-side routing
   - React hooks for state management
   - API utilities with error handling and fallbacks
 
 ## Project Structure
 - `/moviemap` - Frontend React application
   - `/src/components` - Reusable React components (Map, Header, LocationModal)
-  - `/src/pages` - Page-level components (Home, Login)
+  - `/src/pages` - Page-level components (Home, About, Login)
   - `/src/utils` - Helper functions and API utilities
   - `/src/styles` - CSS files including theme variables
 - `/server` - Backend Express API
@@ -73,15 +74,16 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
 - `FIREBASE_SERVICE_ACCOUNT_JSON` - Firebase service account as JSON string (alternative to file path)
 
 ## Database Configuration
-- **Firestore**: Now used for all environments (previously SQLite for development)
+- **Firestore**: Used for all environments
 - **Development Mode**: 
   - Uses an in-memory mock Firestore when no service account is available
+  - Mock is pre-populated with sample locations for consistent development
   - Test moderator automatically created with uid `test-moderator`
 - **Production Mode**:
   - Requires Firebase service account for authentication
   - Set `FIREBASE_SERVICE_ACCOUNT_JSON` as environment variable
 - **Data Management**:
-  - Use `npm run add-locations` to populate the database
+  - Use `npm run add-locations` to populate the production database
   - Use `--overwrite` flag to replace existing locations
 
 ## Important Implementation Details
@@ -116,11 +118,14 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
 - Admin routes require a valid Firebase ID token in the Authorization header
 
 ## Deployment Guidelines
-- The server is designed to be deployed on Netlify or similar platforms
+- Frontend is deployed on Netlify
+- Backend is deployed on a separate service (details in /server/DEPLOYMENT.md)
 - Important settings:
   - NODE_ENV=production
   - FIREBASE_SERVICE_ACCOUNT_JSON must be set as an environment variable
-- Complete deployment instructions in `/server/DEPLOYMENT.md`
+- Routing issues:
+  - Frontend uses HashRouter for better static hosting compatibility
+  - The _redirects file and netlify.toml are configured to handle SPA routing
 
 ## Common Issues and Solutions
 - **Missing Locations**: Ensure API URL includes `/api` path segment
@@ -129,20 +134,29 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
 - **Empty API Responses**: Verify that database is populated with locations
 - **CORS Errors**: Ensure frontend is making requests to correct API URL
 
-## Session Context
-Session history and past development:
-1. Initial database setup using SQLite
-2. Migrated database to Firestore for production
-3. Created database abstraction layer
-4. Implemented Firebase authentication
-5. Created tools for managing Firestore data 
-6. Configured deployment environment
-7. Fixed async/await implementation in route handlers
-8. Fixed API URL configuration and error handling
-9. Implemented improved security practices
+## CSS Architecture
+- Main theme variables defined in `theme.css` (Alamo Drafthouse-inspired)
+- Component-specific styles in dedicated CSS files
+- Responsive design with mobile-first approach
+- Use CSS variables for consistency across components
 
-Next development priorities:
-1. Enhance moderator UI for handling submissions
-2. Add user favoriting functionality 
-3. Improve map UI with clustering for locations
-4. Add search functionality for locations
+## Recent Implementation Changes
+- Added About page with developer information
+- Switched from BrowserRouter to HashRouter for better static hosting compatibility
+- Ensured consistent sample data between development mock and production database
+- Pre-populated mock Firestore in development for more consistent testing
+- Fixed Firestore mock implementation
+
+## Areas for Cleanup
+- CSS duplication between App.css and theme.css
+- SQL-style query patterns in Firestore implementation
+- Complex initialization path in Firebase config
+- Console logs in production code
+
+## Next Development Priorities
+1. Clean up redundant CSS variables between App.css and theme.css
+2. Refactor Firestore implementation to remove SQL-like query patterns
+3. Enhance moderator UI for handling submissions
+4. Add user favoriting functionality 
+5. Improve map UI with clustering for locations
+6. Add search functionality for locations
