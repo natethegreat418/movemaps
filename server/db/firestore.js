@@ -264,8 +264,8 @@ const firestoreDb = {
             return { rows: [{ count: result.rowCount }], rowCount: 1 };
           }
           if (queryLower.includes('from moderators')) {
-            // Count moderators is not implemented yet
-            return { rows: [{ count: 0 }], rowCount: 1 };
+            const modResult = await moderatorsCollection.get();
+            return { rows: [{ count: modResult.size }], rowCount: 1 };
           }
         }
       }

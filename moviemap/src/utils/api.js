@@ -39,10 +39,8 @@ export const fetchLocations = async () => {
       return [];
     }
     
-    // Check if we received the expected number of locations
-    if (data.locations.length !== 7) {
-      console.warn(`Expected 7 locations but received ${data.locations.length}`);
-    }
+    // Log the number of locations retrieved
+    console.log(`Retrieved ${data.locations.length} locations from API`);
     
     return data.locations;
   } catch (error) {
@@ -62,6 +60,7 @@ export const fetchLocations = async () => {
 
 /**
  * Sample location data used as fallback when API is unavailable
+ * This must match the sample data in the server's Firebase mock and add-locations.js
  */
 const getSampleLocations = () => {
   return [
@@ -119,6 +118,28 @@ const getSampleLocations = () => {
       locationName: 'Ponte Vecchio, Florence, Italy',
       trailerUrl: 'https://www.youtube.com/watch?v=YoHD9XEInc0',
       imdbLink: 'https://www.imdb.com/title/tt1375666/'
+    },
+    {
+      id: 6,
+      title: 'The Lord of the Rings',
+      year: 2001,
+      type: 'movie',
+      lat: -41.1579,
+      lng: 175.6274,
+      locationName: 'Kaitoke Regional Park, New Zealand (Rivendell)',
+      trailerUrl: 'https://www.youtube.com/watch?v=V75dMMIW2B4',
+      imdbLink: 'https://www.imdb.com/title/tt0120737/'
+    },
+    {
+      id: 7,
+      title: 'Breaking Bad',
+      year: 2008,
+      type: 'tv',
+      lat: 35.1262,
+      lng: -106.5369,
+      locationName: 'Albuquerque, New Mexico',
+      trailerUrl: 'https://www.youtube.com/watch?v=HhesaQXLuRY',
+      imdbLink: 'https://www.imdb.com/title/tt0903747/'
     }
   ];
 };

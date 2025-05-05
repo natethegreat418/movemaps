@@ -53,7 +53,8 @@ router.get('/locations', async (req, res) => {
     
     // If no locations exist, log a message but don't insert sample data
     if (count === 0) {
-      console.log('No locations found in database. Please run the add-locations.js script.');
+      console.log('No locations found in database. If this is production, please run the add-locations.js script.');
+      console.log('In development mode, the Firebase mock should automatically provide sample locations.');
     }
     
     // Query to get all approved locations

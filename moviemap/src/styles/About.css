@@ -1,0 +1,135 @@
+/* About Page Styles */
+
+.about-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+
+.about-section {
+  margin: 1rem 0 2rem;
+  padding: 0;
+}
+
+.about-section h2 {
+  color: var(--color-secondary);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--color-accent);
+  padding-left: 0.75rem;
+}
+
+.about-section p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.about-section ul {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.about-section li {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+
+.about-section a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.about-section a:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* Developer Profile Styling */
+.developer-profile {
+  background-color: var(--color-background-alt);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  margin: 1rem 0 2rem;
+  box-shadow: var(--shadow-md);
+  border-top: 4px solid var(--color-accent);
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.profile-image {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-photo {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--color-accent);
+  box-shadow: var(--shadow-md);
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-info h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-primary);
+}
+
+.profile-title {
+  font-size: 1.1rem;
+  color: var(--color-text-light);
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.social-links {
+  margin-top: 1rem;
+}
+
+.social-links a {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: var(--color-primary);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.social-links a:hover {
+  background-color: var(--color-primary-dark);
+  text-decoration: none;
+}
+
+/* Responsive Layout */
+@media (min-width: 768px) {
+  .profile-content {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  
+  .profile-image {
+    flex: 0 0 250px;
+    margin-right: 2rem;
+  }
+}

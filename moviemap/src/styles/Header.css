@@ -21,6 +21,10 @@
   align-items: center;
 }
 
+.logo-link {
+  text-decoration: none;
+}
+
 .logo-text {
   font-family: var(--font-family-heading);
   font-size: 1.75rem;
