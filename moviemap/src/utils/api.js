@@ -56,13 +56,20 @@ async function fetchWithTimeout(endpoint, options = {}) {
  */
 export const fetchLocations = async () => {
   try {
+    // DEBUG: Log environment and config information
+    console.log('Environment mode:', import.meta.env.MODE);
+    console.log('API URL configured:', API_CONFIG.baseUrl);
+    console.log('Should use sample data:', shouldUseSampleData());
+    
     // Check if we should use sample data based on environment
     if (shouldUseSampleData() && !API_CONFIG.baseUrl) {
       console.log('No API URL configured. Using sample data.');
       return await getSampleLocations();
     }
     
+    console.log('Attempting to fetch from API URL:', `${API_CONFIG.baseUrl}/locations`);
     const data = await fetchWithTimeout('locations');
+    console.log('API response data:', data);
     
     if (!data.locations) {
       console.warn('API response missing locations array');
@@ -79,7 +86,9 @@ export const fetchLocations = async () => {
     
     return data.locations;
   } catch (error) {
-    console.log('Error fetching locations, using fallback sample data');
+    console.log('Error fetching locations:', error);
+    console.log('Error details:', error.message);
+    console.log('Using fallback sample data');
     return await getSampleLocations();
   }
 };

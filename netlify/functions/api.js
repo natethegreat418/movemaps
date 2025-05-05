@@ -28,5 +28,31 @@ app.get('/', (req, res) => {
   });
 });
 
+// Add debug route
+app.get('/debug', async (req, res) => {
+  try {
+    const db = require('../../server/db');
+    const locationCount = await db.query('SELECT COUNT(*) as count FROM locations');
+    const dbInfo = {
+      locationCount: locationCount?.rows?.[0]?.count || 'unknown',
+      environment: process.env.NODE_ENV || 'unknown',
+      isFirestore: !!db.getLocations
+    };
+    
+    res.json({
+      message: 'API Debug Information',
+      database: dbInfo,
+      environment: process.env,
+      headers: req.headers
+    });
+  } catch (error) {
+    res.json({
+      message: 'API Debug Error',
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
 // Export the serverless handler
 module.exports.handler = serverless(app);
