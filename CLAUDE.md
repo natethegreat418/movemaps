@@ -11,18 +11,34 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
 - **Database**: Firebase Firestore (NoSQL cloud database)
 - **Authentication**: Firebase Auth for moderator access
 
+## Architecture
+- **Database**: Cloud Firestore for all environments
+  - Development uses a local in-memory mock when credentials unavailable
+  - Production uses real Firestore with service account authentication
+  - Collections: `locations`, `submissions`, `moderators`
+- **API Server**: Express.js REST API 
+  - Async/await pattern throughout for promise handling
+  - Route modularization (public vs. admin routes)
+  - Middleware for authentication and moderation checks
+- **Frontend**: React SPA with Mapbox integration
+  - Component-based architecture
+  - React hooks for state management
+  - API utilities with error handling and fallbacks
+
 ## Project Structure
 - `/moviemap` - Frontend React application
-  - `/src/components` - Reusable React components
-  - `/src/pages` - Page-level components
+  - `/src/components` - Reusable React components (Map, Header, LocationModal)
+  - `/src/pages` - Page-level components (Home, Login)
   - `/src/utils` - Helper functions and API utilities
   - `/src/styles` - CSS files including theme variables
 - `/server` - Backend Express API
-  - `/config` - Configuration files
+  - `/config` - Configuration files (Firebase setup)
   - `/db` - Database connection and utilities
-  - `/middleware` - Express middleware
-  - `/routes` - API route definitions
-  - `/scripts` - Utility scripts for database and deployment
+    - `index.js` - Main database interface
+    - `firestore.js` - Firestore implementation
+  - `/middleware` - Express middleware (auth, moderation)
+  - `/routes` - API route definitions (public, admin)
+  - `/scripts` - Utility scripts for database management
 
 ## Build Commands
 ### Frontend
@@ -35,16 +51,18 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
 - `cd server && npm run dev` - Start server with nodemon for development
 - `cd server && npm run add-locations` - Add film locations to Firestore
 - `cd server && npm run test:locations` - Test Firestore locations retrieval
+- `cd server && npm test` - Run all Firestore integration tests
 
 ## API Endpoints
 - `GET /api/locations` - Get all approved filming locations
 - `POST /api/submit-location` - Submit a new location for moderation
 - `GET /api/admin/submissions` - Get pending submissions (requires auth)
 - `PUT /api/admin/moderate/:id` - Approve/reject submission (requires auth)
+- `GET /api/admin/profile` - Get current moderator profile information
 
 ## Environment Variables
 ### Frontend (.env in /moviemap)
-- `VITE_API_URL` - Backend API URL (default: http://localhost:3000/api)
+- `VITE_API_URL` - Backend API URL (must include `/api` path, e.g., http://localhost:3000/api)
 - `VITE_MAPBOX_TOKEN` - Mapbox GL JS access token
 - `VITE_FIREBASE_*` - Firebase configuration variables
 
@@ -52,14 +70,27 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
 - `PORT` - Server port (default: 3000)
 - `NODE_ENV` - Environment (development/production)
 - `FIREBASE_SERVICE_ACCOUNT_PATH` - Path to Firebase service account JSON
-- `FIREBASE_SERVICE_ACCOUNT_JSON` - Firebase service account as JSON string
+- `FIREBASE_SERVICE_ACCOUNT_JSON` - Firebase service account as JSON string (alternative to file path)
 
-## Database Setup
-- The application uses Firestore as the database for all environments
-- In development, a mock Firestore is used if no service account is provided
-- To populate the database, run the add-locations script
-- See detailed setup instructions in `/server/FIRESTORE_SETUP.md`
-- For deployment steps, see `/server/DEPLOYMENT.md`
+## Database Configuration
+- **Firestore**: Now used for all environments (previously SQLite for development)
+- **Development Mode**: 
+  - Uses an in-memory mock Firestore when no service account is available
+  - Test moderator automatically created with uid `test-moderator`
+- **Production Mode**:
+  - Requires Firebase service account for authentication
+  - Set `FIREBASE_SERVICE_ACCOUNT_JSON` as environment variable
+- **Data Management**:
+  - Use `npm run add-locations` to populate the database
+  - Use `--overwrite` flag to replace existing locations
+
+## Important Implementation Details
+- **Async Database Access**: All database operations return Promises and must be used with `await`
+- **Error Handling**: Comprehensive try/catch blocks throughout codebase
+- **API Structure**: Consistent response format with `{ locations: [...] }` pattern
+- **Frontend Fallbacks**: Sample data as fallback for network errors only
+- **Authentication Flow**: JWT-based Firebase auth with moderator role check
+- **Security**: Environment variables for sensitive data, CORS enabled
 
 ## Design Guidelines
 - Use the Alamo Drafthouse-inspired color palette:
@@ -89,7 +120,14 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
 - Important settings:
   - NODE_ENV=production
   - FIREBASE_SERVICE_ACCOUNT_JSON must be set as an environment variable
-- Follow instructions in DEPLOYMENT.md for complete setup
+- Complete deployment instructions in `/server/DEPLOYMENT.md`
+
+## Common Issues and Solutions
+- **Missing Locations**: Ensure API URL includes `/api` path segment
+- **Authentication Errors**: Use test token in development, verify service account in production
+- **Database Connection Issues**: Check service account credentials and permissions
+- **Empty API Responses**: Verify that database is populated with locations
+- **CORS Errors**: Ensure frontend is making requests to correct API URL
 
 ## Session Context
 Session history and past development:
@@ -98,9 +136,13 @@ Session history and past development:
 3. Created database abstraction layer
 4. Implemented Firebase authentication
 5. Created tools for managing Firestore data 
-6. Configured production deployment environment
+6. Configured deployment environment
+7. Fixed async/await implementation in route handlers
+8. Fixed API URL configuration and error handling
+9. Implemented improved security practices
 
 Next development priorities:
 1. Enhance moderator UI for handling submissions
 2. Add user favoriting functionality 
 3. Improve map UI with clustering for locations
+4. Add search functionality for locations
