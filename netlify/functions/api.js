@@ -2,6 +2,9 @@ const express = require('express');
 const serverless = require('serverless-http');
 const cors = require('cors');
 
+// Force production mode to ensure proper Firebase connection
+process.env.NODE_ENV = 'production';
+
 // Import your Express routes
 const publicRoutes = require('../../server/routes/public');
 const adminRoutes = require('../../server/routes/admin');

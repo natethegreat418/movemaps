@@ -3,7 +3,11 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const isProd = mode === 'production'
+  // Force production mode when running in CI/CD environments
+  const isProd = mode === 'production' || process.env.NODE_ENV === 'production'
+  const buildMode = isProd ? 'production' : 'development'
+  
+  console.log(`Building in ${buildMode} mode...`)
   
   return {
     plugins: [react()],
@@ -27,7 +31,9 @@ export default defineConfig(({ mode }) => {
     // Define global constants for the build
     define: {
       // Make the build mode available to the client code
-      __APP_ENV__: JSON.stringify(mode)
+      __APP_ENV__: JSON.stringify(buildMode),
+      // Ensure process.env.NODE_ENV is correctly set
+      'process.env.NODE_ENV': JSON.stringify(buildMode)
     }
   }
 })

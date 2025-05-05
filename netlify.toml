@@ -4,18 +4,22 @@
   publish = "moviemap/dist"
   functions = "netlify/functions"
 
-# Map /api/* requests to the Netlify Function
+# Map /api/* requests to the Netlify Function FIRST
+# This needs to be BEFORE the SPA redirect
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
 
 # Handle SPA routing for the frontend
+# This must come AFTER the API redirect
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
 [build.environment]
+  # Force production mode for the frontend build
+  NODE_ENV = "production"
   # Disable secrets scanning for the Mapbox token
   SECRETS_SCAN_OMIT_KEYS = "VITE_MAPBOX_TOKEN"
