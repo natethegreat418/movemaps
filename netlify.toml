@@ -4,12 +4,20 @@
   publish = "moviemap/dist"
   functions = "netlify/functions"
 
-# Map /api/* requests to the Netlify Function FIRST
+# Map /api/* requests to the direct Netlify Function FIRST
 # This needs to be BEFORE the SPA redirect
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  to = "/.netlify/functions/api-direct/:splat"
   status = 200
+  force = true
+  
+# Also create a direct path to the API function
+[[redirects]]
+  from = "/api-direct/*"
+  to = "/.netlify/functions/api-direct/:splat"
+  status = 200
+  force = true
 
 # Handle SPA routing for the frontend
 # This must come AFTER the API redirect

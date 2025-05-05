@@ -24,8 +24,25 @@ export const isProduction = () => {
  * Falls back to localhost in development
  */
 export const getApiUrl = () => {
-  return import.meta.env.VITE_API_URL || 
+  // Check for direct function URL first
+  const directFunctionUrl = import.meta.env.VITE_FUNCTION_URL;
+  if (directFunctionUrl) {
+    console.log('Using direct function URL:', directFunctionUrl);
+    return directFunctionUrl;
+  }
+  
+  // Fall back to standard API URL
+  const apiUrl = import.meta.env.VITE_API_URL || 
     (isDevelopment() ? 'http://localhost:3000/api' : null);
+  
+  // In Netlify environment, automatically convert /api to /.netlify/functions/api-direct
+  if (apiUrl && apiUrl.includes('moviemaps.net/api')) {
+    const netlifyFunctionUrl = apiUrl.replace('/api', '/.netlify/functions/api-direct');
+    console.log('Converting API URL to Netlify Function URL:', netlifyFunctionUrl);
+    return netlifyFunctionUrl;
+  }
+  
+  return apiUrl;
 };
 
 /**
