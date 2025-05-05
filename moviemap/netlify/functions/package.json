@@ -1,9 +1,0 @@
-{
-  "name": "moviemap-netlify-functions",
-  "version": "1.0.0",
-  "description": "Netlify functions for MovieMap application",
-  "main": "api.js",
-  "dependencies": {
-    "firebase-admin": "^11.11.1"
-  }
-}
