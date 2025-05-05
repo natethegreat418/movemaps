@@ -7,16 +7,19 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
  */
 export const fetchLocations = async () => {
   try {
-    console.log(`Fetching locations from: ${API_BASE_URL}/locations`);
+    // The updated API_BASE_URL includes /api, so we should just use /locations
+    // Let's log this to verify what endpoint we're hitting
+    const endpoint = `${API_BASE_URL}/locations`;
+    console.log(`Fetching locations from: ${endpoint}`);
     
-    const response = await fetch(`${API_BASE_URL}/locations`, {
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       // Include credentials if your API requires authentication
-      // credentials: 'include', 
+      // credentials: 'include',
     });
     
     console.log('API Response status:', response.status);
@@ -29,19 +32,31 @@ export const fetchLocations = async () => {
     
     const data = await response.json();
     console.log('API returned data:', data);
+    console.log('Number of locations:', data.locations ? data.locations.length : 0);
     
     if (!data.locations) {
       console.warn('API response missing locations array');
       return [];
     }
     
+    // Check if we received the expected number of locations
+    if (data.locations.length !== 7) {
+      console.warn(`Expected 7 locations but received ${data.locations.length}`);
+    }
+    
     return data.locations;
   } catch (error) {
     console.error('Error fetching locations:', error);
+    console.error('Error details:', error.message);
     
-    // Fallback to hardcoded data for development/demo purposes
-    console.log('Using fallback sample data');
-    return getSampleLocations();
+    // Don't use fallback unless API is completely unavailable
+    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      console.log('Network error, using fallback sample data');
+      return getSampleLocations();
+    }
+    
+    // For other errors, return an empty array
+    return [];
   }
 };
 

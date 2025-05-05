@@ -38,7 +38,7 @@ router.get('/locations', async (req, res) => {
     console.log('GET /locations request received');
     
     // Check how many locations are in the database
-    const checkResult = db.query('SELECT COUNT(*) as count FROM locations');
+    const checkResult = await db.query('SELECT COUNT(*) as count FROM locations');
     console.log('Count result:', checkResult);
     
     let count = 0;
@@ -57,7 +57,7 @@ router.get('/locations', async (req, res) => {
     }
     
     // Query to get all approved locations
-    const result = db.query(`
+    const result = await db.query(`
       SELECT 
         id, 
         title, 

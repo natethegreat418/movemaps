@@ -13,9 +13,9 @@ router.use(verifyModerator);
  * 
  * Get all pending submissions for review
  */
-router.get('/submissions', (req, res) => {
+router.get('/submissions', async (req, res) => {
   try {
-    const result = db.query(
+    const result = await db.query(
       `SELECT * FROM submissions WHERE status = ? ORDER BY id DESC`,
       ['pending']
     );
@@ -32,7 +32,7 @@ router.get('/submissions', (req, res) => {
  * 
  * Approve or reject a submission
  */
-router.put('/moderate/:id', (req, res) => {
+router.put('/moderate/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { action, updates } = req.body;
@@ -42,7 +42,7 @@ router.put('/moderate/:id', (req, res) => {
     }
     
     // Get the submission
-    const getResult = db.query('SELECT * FROM submissions WHERE id = ?', [id]);
+    const getResult = await db.query('SELECT * FROM submissions WHERE id = ?', [id]);
     
     if (!getResult.rows || getResult.rows.length === 0) {
       return res.status(404).json({ error: 'Submission not found' });
@@ -55,7 +55,7 @@ router.put('/moderate/:id', (req, res) => {
       const finalSubmission = { ...submission, ...updates };
       
       // Insert into locations table
-      db.query(
+      await db.query(
         `INSERT INTO locations (title, type, lat, lng, trailer_url, imdb_link) 
          VALUES (?, ?, ?, ?, ?, ?)`,
         [
@@ -70,7 +70,7 @@ router.put('/moderate/:id', (req, res) => {
     }
     
     // Update submission status
-    db.query(
+    await db.query(
       'UPDATE submissions SET status = ? WHERE id = ?',
       [action === 'approve' ? 'approved' : 'rejected', id]
     );

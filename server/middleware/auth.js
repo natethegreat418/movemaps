@@ -50,7 +50,7 @@ const verifyModerator = async (req, res, next) => {
     }
     
     // Check if the user is in the moderators table
-    const result = db.query('SELECT * FROM moderators WHERE uid = ?', [req.user.uid]);
+    const result = await db.query('SELECT * FROM moderators WHERE uid = ?', [req.user.uid]);
     
     if (result.rows && result.rows.length > 0) {
       next();

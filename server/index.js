@@ -26,10 +26,10 @@ app.get('/health', (req, res) => {
 });
 
 // Test database endpoint
-app.get('/db-test', (req, res) => {
+app.get('/db-test', async (req, res) => {
   try {
     // Simple query to check database connectivity
-    const result = db.query('SELECT 1 AS test');
+    const result = await db.query('SELECT 1 AS test');
     res.status(200).json({ 
       message: 'Database connection successful',
       result: result.rows
@@ -46,18 +46,20 @@ app.use('/api/admin', adminRoutes);
 
 // Add test moderator in development
 if (process.env.NODE_ENV === 'development') {
-  try {
-    // Check if test moderator exists
-    const result = db.query('SELECT * FROM moderators WHERE uid = ?', ['test-moderator']);
-    
-    // If not, add it
-    if (!result.rows || result.rows.length === 0) {
-      db.query('INSERT INTO moderators (uid) VALUES (?)', ['test-moderator']);
-      console.log('Added test moderator for development');
+  (async () => {
+    try {
+      // Check if test moderator exists
+      const result = await db.query('SELECT * FROM moderators WHERE uid = ?', ['test-moderator']);
+      
+      // If not, add it
+      if (!result.rows || result.rows.length === 0) {
+        await db.query('INSERT INTO moderators (uid) VALUES (?)', ['test-moderator']);
+        console.log('Added test moderator for development');
+      }
+    } catch (error) {
+      console.error('Error adding test moderator:', error);
     }
-  } catch (error) {
-    console.error('Error adding test moderator:', error);
-  }
+  })();
 }
 
 // Proper shutdown
