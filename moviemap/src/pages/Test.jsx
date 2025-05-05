@@ -14,7 +14,6 @@ function Test() {
         // Get environment info
         const env = {
           apiUrl: import.meta.env.VITE_API_URL,
-          functionUrl: import.meta.env.VITE_FUNCTION_URL,
           mode: import.meta.env.MODE,
           dev: import.meta.env.DEV,
           prod: import.meta.env.PROD

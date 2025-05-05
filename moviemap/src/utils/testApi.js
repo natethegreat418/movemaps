@@ -7,7 +7,7 @@ import { getApiUrl } from './env';
 const TEST_API_CONFIG = {
   baseUrl: getApiUrl() || 'http://localhost:3000/api',
   timeout: 5000, // 5 second timeout for API requests
-  // No test endpoints - removed Netlify functions
+  // API testing endpoints
   testEndpoints: [],
   headers: {
     'Accept': 'application/json',
@@ -64,11 +64,7 @@ export const fetchEndpoint = async (url) => {
 export const fetchAllTestEndpoints = async () => {
   const results = {};
   
-  // Try each test endpoint
-  for (const endpoint of TEST_API_CONFIG.testEndpoints) {
-    const name = endpoint.split('/').pop(); // Extract function name from URL
-    results[name] = await fetchEndpoint(endpoint);
-  }
+  // No test endpoints to try
   
   // Also try the main API if configured
   if (TEST_API_CONFIG.baseUrl) {
