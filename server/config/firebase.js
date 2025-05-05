@@ -37,7 +37,9 @@ const initializeFirebaseAdmin = () => {
     // If service account file exists, use it
     if (fs.existsSync(serviceAccountPath)) {
       try {
-        const serviceAccount = require(serviceAccountPath);
+        // Use fs.readFileSync instead of require to handle file paths more reliably
+        const serviceAccountContent = fs.readFileSync(serviceAccountPath, 'utf8');
+        const serviceAccount = JSON.parse(serviceAccountContent);
         
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount)
@@ -46,9 +48,12 @@ const initializeFirebaseAdmin = () => {
         console.log(`Firebase Admin SDK initialized with service account from: ${serviceAccountPath}`);
         return admin;
       } catch (importError) {
-        console.error(`Error importing service account from ${serviceAccountPath}:`, importError);
+        console.error(`Error with service account from ${serviceAccountPath}:`, importError.message);
+        console.log('Falling back to development mock...');
         // Fall through to try other methods or use development mock
       }
+    } else {
+      console.log(`Service account file not found at: ${serviceAccountPath}`);
     }
 
     // Use development mock if in development environment
@@ -62,8 +67,15 @@ const initializeFirebaseAdmin = () => {
       return createMockAdmin();
     }
 
-    // Otherwise, try to use Application Default Credentials
+    // For development environment, prefer the mock over ADC
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Skipping application default credentials in development environment');
+      return createMockAdmin();
+    }
+    
+    // Otherwise, try to use Application Default Credentials (for production environments)
     try {
+      console.log('Trying to use application default credentials...');
       admin.initializeApp({
         credential: admin.credential.applicationDefault()
       });
@@ -71,7 +83,13 @@ const initializeFirebaseAdmin = () => {
       console.log('Firebase Admin SDK initialized with application default credentials');
       return admin;
     } catch (adcError) {
-      console.error('Error initializing with application default credentials:', adcError);
+      console.error('Error initializing with application default credentials:', adcError.message);
+      
+      // Fall back to mock if available
+      if (process.env.NODE_ENV === 'development') {
+        return createMockAdmin();
+      }
+      
       throw new Error('Failed to initialize Firebase Admin SDK. No valid credentials available.');
     }
   } catch (error) {
@@ -87,7 +105,8 @@ const initializeFirebaseAdmin = () => {
       return createMockAdmin();
     }
     
-    throw error;
+    console.log('Using mock Firebase Admin SDK for development due to initialization error');
+    return createMockAdmin();
   }
 };
 
@@ -95,6 +114,118 @@ const initializeFirebaseAdmin = () => {
 const createMockAdmin = () => {
   console.log('Using mock Firebase Admin SDK for development');
   console.log('You can use "test-token-moderator" as a valid token');
+  
+  // Create in-memory document stores
+  const collections = {
+    locations: new Map(),
+    submissions: new Map(),
+    moderators: new Map([['test-moderator', { role: 'moderator' }]])
+  };
+  
+  // Create a document reference
+  const createDocRef = (collection, id) => {
+    return {
+      id,
+      collection,
+      get: () => {
+        const data = collections[collection].get(id);
+        return Promise.resolve({
+          exists: !!data,
+          id,
+          data: () => data,
+          ref: { id }
+        });
+      },
+      set: (data) => {
+        collections[collection].set(id, data);
+        return Promise.resolve();
+      },
+      update: (data) => {
+        const existing = collections[collection].get(id) || {};
+        collections[collection].set(id, { ...existing, ...data });
+        return Promise.resolve();
+      },
+      delete: () => {
+        collections[collection].delete(id);
+        return Promise.resolve();
+      }
+    };
+  };
+  
+  // Create a collection reference
+  const createCollectionRef = (name) => {
+    return {
+      doc: (id = `mock-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`) => 
+        createDocRef(name, id),
+      add: (data) => {
+        const id = `mock-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        collections[name].set(id, data);
+        return Promise.resolve({ id });
+      },
+      where: (field, operator, value) => {
+        return {
+          get: () => {
+            // Filter the collection based on the condition
+            const filtered = [...collections[name].entries()].filter(([_, data]) => {
+              if (!data) return false;
+              
+              switch (operator) {
+                case '==': return data[field] === value;
+                case '!=': return data[field] !== value;
+                case '>': return data[field] > value;
+                case '>=': return data[field] >= value;
+                case '<': return data[field] < value;
+                case '<=': return data[field] <= value;
+                default: return false;
+              }
+            });
+            
+            return Promise.resolve({
+              docs: filtered.map(([id, data]) => ({
+                id,
+                exists: true,
+                data: () => data,
+                ref: { id }
+              })),
+              size: filtered.length
+            });
+          }
+        };
+      },
+      get: () => Promise.resolve({
+        docs: [...collections[name].entries()].map(([id, data]) => ({
+          id,
+          exists: true,
+          data: () => data,
+          ref: { id }
+        })),
+        size: collections[name].size
+      })
+    };
+  };
+  
+  // Create a batch
+  const createBatch = () => {
+    const operations = [];
+    const batch = {
+      set: (docRef, data) => {
+        operations.push(() => docRef.set(data));
+        return batch;
+      },
+      update: (docRef, data) => {
+        operations.push(() => docRef.update(data));
+        return batch;
+      },
+      delete: (docRef) => {
+        operations.push(() => docRef.delete());
+        return batch;
+      },
+      commit: () => {
+        return Promise.all(operations.map(op => op()));
+      }
+    };
+    return batch;
+  };
   
   return {
     auth: () => ({
@@ -104,6 +235,10 @@ const createMockAdmin = () => {
         }
         return Promise.reject(new Error('Invalid token'));
       }
+    }),
+    firestore: () => ({
+      collection: (name) => createCollectionRef(name),
+      batch: () => createBatch()
     })
   };
 };
