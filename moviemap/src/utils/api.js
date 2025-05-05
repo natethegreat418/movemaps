@@ -1,16 +1,30 @@
 // API base URL from environment variables
+// In production with no API, we'll always use fallback data
+const isProduction = import.meta.env.PROD;
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+// Always use fallback in production if no API URL is explicitly set
+const shouldAlwaysUseFallback = isProduction && !import.meta.env.VITE_API_URL;
 
 /**
  * Fetch movie locations from the API
  * @returns {Promise<Array>} Array of location objects
  */
 export const fetchLocations = async () => {
+  // If we're in production and no API URL is explicitly set, use fallback data
+  if (shouldAlwaysUseFallback) {
+    console.log('Production environment with no API URL configured. Using fallback sample data.');
+    return getSampleLocations();
+  }
+
   try {
     // The updated API_BASE_URL includes /api, so we should just use /locations
-    // Let's log this to verify what endpoint we're hitting
     const endpoint = `${API_BASE_URL}/locations`;
     console.log(`Fetching locations from: ${endpoint}`);
+    
+    // Add timeout to fetch to prevent long hanging requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
     
     const response = await fetch(endpoint, {
       method: 'GET',
@@ -18,9 +32,11 @@ export const fetchLocations = async () => {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      // Include credentials if your API requires authentication
-      // credentials: 'include',
+      signal: controller.signal
     });
+    
+    // Clear timeout since request completed
+    clearTimeout(timeoutId);
     
     console.log('API Response status:', response.status);
     
@@ -31,30 +47,28 @@ export const fetchLocations = async () => {
     }
     
     const data = await response.json();
-    console.log('API returned data:', data);
-    console.log('Number of locations:', data.locations ? data.locations.length : 0);
     
     if (!data.locations) {
       console.warn('API response missing locations array');
-      return [];
+      return getSampleLocations(); // Use fallback if response format is unexpected
     }
     
     // Log the number of locations retrieved
     console.log(`Retrieved ${data.locations.length} locations from API`);
     
-    return data.locations;
-  } catch (error) {
-    console.error('Error fetching locations:', error);
-    console.error('Error details:', error.message);
-    
-    // Don't use fallback unless API is completely unavailable
-    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-      console.log('Network error, using fallback sample data');
+    // If API returned empty array, use fallback
+    if (data.locations.length === 0) {
+      console.warn('API returned empty locations array, using fallback');
       return getSampleLocations();
     }
     
-    // For other errors, return an empty array
-    return [];
+    return data.locations;
+  } catch (error) {
+    console.error('Error fetching locations:', error);
+    
+    // Use fallback for any fetch errors (network issues, timeouts, etc.)
+    console.log('Error fetching locations, using fallback sample data');
+    return getSampleLocations();
   }
 };
 

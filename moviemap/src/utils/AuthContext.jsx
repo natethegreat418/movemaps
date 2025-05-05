@@ -12,27 +12,47 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
 
   useEffect(() => {
-    // Listen for auth state changes
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      
-      if (user) {
-        // Get ID token when user is authenticated
-        try {
-          const token = await getIdToken();
-          setToken(token);
-        } catch (error) {
-          console.error('Error getting ID token:', error);
-        }
+    let unsubscribe = () => {};
+    
+    try {
+      // Check if auth has onAuthStateChanged method
+      if (auth && typeof auth.onAuthStateChanged === 'function') {
+        // Listen for auth state changes
+        unsubscribe = onAuthStateChanged(auth, async (user) => {
+          setUser(user);
+          
+          if (user) {
+            // Get ID token when user is authenticated
+            try {
+              const token = await getIdToken();
+              setToken(token);
+            } catch (error) {
+              console.error('Error getting ID token:', error);
+            }
+          } else {
+            setToken(null);
+          }
+          
+          setLoading(false);
+        });
       } else {
-        setToken(null);
+        // Auth not properly initialized, set loading to false
+        console.warn('Auth not properly initialized');
+        setLoading(false);
       }
-      
+    } catch (error) {
+      console.error('Error setting up auth listener:', error);
       setLoading(false);
-    });
+    }
 
     // Cleanup subscription on unmount
-    return () => unsubscribe();
+    return () => {
+      try {
+        unsubscribe();
+      } catch (error) {
+        console.error('Error unsubscribing from auth state:', error);
+      }
+    };
   }, []);
 
   // API request with auth token

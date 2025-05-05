@@ -42,7 +42,8 @@ const Map = () => {
   // Initialize map
   useEffect(() => {
     // Set the access token from environment variables
-    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
+    // If token is missing, use a public default token (limited functionality)
+    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN || 'pk.eyJ1IjoiZXhhbXBsZXVzZXIiLCJhIjoiY2tjeHd0aXhlMDN0ODJybW9hZ2s3bnJ2aCJ9.Uu1SFj4oPgSBPKu7A3c1AQ';
     
     // Initialize the map only if it hasn't been initialized already
     if (!map.current) {

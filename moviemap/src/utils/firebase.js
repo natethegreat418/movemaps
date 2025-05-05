@@ -14,9 +14,40 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+// Initialize Firebase with fallback for missing config
+let app;
+let auth;
+
+try {
+  // Check if required config is present
+  if (!firebaseConfig.apiKey) {
+    console.warn('Firebase API key missing. Using fallback auth for development.');
+    // Create fallback Firebase implementation
+    app = {};
+    auth = {
+      currentUser: null,
+      onAuthStateChanged: (callback) => {
+        callback(null);
+        return () => {}; // Return unsubscribe function
+      }
+    };
+  } else {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    console.log('Firebase initialized successfully');
+  }
+} catch (error) {
+  console.error('Firebase initialization error:', error);
+  // Fallback for error cases
+  app = {};
+  auth = {
+    currentUser: null,
+    onAuthStateChanged: (callback) => {
+      callback(null);
+      return () => {}; // Return unsubscribe function
+    }
+  };
+}
 
 // Authentication functions
 export const login = async (email, password) => {
@@ -52,11 +83,16 @@ export const getCurrentUser = () => {
 
 // Get ID token
 export const getIdToken = async () => {
-  const user = auth.currentUser;
-  if (user) {
-    return user.getIdToken();
+  try {
+    const user = auth.currentUser;
+    if (user && typeof user.getIdToken === 'function') {
+      return user.getIdToken();
+    }
+    return null;
+  } catch (error) {
+    console.error('Error in getIdToken:', error);
+    return null;
   }
-  return null;
 };
 
 export { auth };
