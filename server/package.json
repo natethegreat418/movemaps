@@ -8,19 +8,19 @@
     "test": "node test-firestore.js",
     "test:admin": "node test-admin-route.js",
     "add-locations": "node scripts/add-locations.js",
-    "test:locations": "node scripts/test-locations.js"
+    "test:locations": "node scripts/test-locations.js",
+    "fetch-imdb": "node scripts/fetch-imdb-locations.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "Express server for MovieMap application",
   "dependencies": {
-    "better-sqlite3": "^11.9.1",
+    "axios": "^1.9.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "firebase-admin": "^13.3.0",
-    "sqlite3": "^5.1.7"
+    "firebase-admin": "^13.3.0"
   },
   "devDependencies": {
     "node-fetch": "^2.6.7",

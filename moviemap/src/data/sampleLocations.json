@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1,
+    "title": "The Dark Knight",
+    "year": 2008,
+    "type": "movie",
+    "lat": 41.8781,
+    "lng": -87.6298,
+    "locationName": "Chicago, Illinois (Lower Wacker Drive)",
+    "trailerUrl": "https://www.youtube.com/watch?v=EXeTwQWrcwY",
+    "imdbLink": "https://www.imdb.com/title/tt0468569/"
+  },
+  {
+    "id": 2,
+    "title": "La La Land",
+    "year": 2016,
+    "type": "movie",
+    "lat": 34.0675,
+    "lng": -118.2987,
+    "locationName": "Griffith Observatory, Los Angeles",
+    "trailerUrl": "https://www.youtube.com/watch?v=0pdqf4P9MB8",
+    "imdbLink": "https://www.imdb.com/title/tt3783958/"
+  },
+  {
+    "id": 3,
+    "title": "Lost in Translation",
+    "year": 2003,
+    "type": "movie",
+    "lat": 35.6895,
+    "lng": 139.6917,
+    "locationName": "Park Hyatt Tokyo, Shinjuku",
+    "trailerUrl": "https://www.youtube.com/watch?v=W6iVPCRflQM",
+    "imdbLink": "https://www.imdb.com/title/tt0335266/"
+  },
+  {
+    "id": 4,
+    "title": "Game of Thrones",
+    "year": 2011,
+    "type": "tv",
+    "lat": 42.6507,
+    "lng": 18.0944,
+    "locationName": "Dubrovnik, Croatia (King's Landing)",
+    "trailerUrl": "https://www.youtube.com/watch?v=KPLWWIOCOOQ",
+    "imdbLink": "https://www.imdb.com/title/tt0944947/"
+  },
+  {
+    "id": 5,
+    "title": "Inception",
+    "year": 2010,
+    "type": "movie",
+    "lat": 43.7800,
+    "lng": 11.2471,
+    "locationName": "Ponte Vecchio, Florence, Italy",
+    "trailerUrl": "https://www.youtube.com/watch?v=YoHD9XEInc0",
+    "imdbLink": "https://www.imdb.com/title/tt1375666/"
+  },
+  {
+    "id": 6,
+    "title": "The Lord of the Rings",
+    "year": 2001,
+    "type": "movie",
+    "lat": -41.1579,
+    "lng": 175.6274,
+    "locationName": "Kaitoke Regional Park, New Zealand (Rivendell)",
+    "trailerUrl": "https://www.youtube.com/watch?v=V75dMMIW2B4",
+    "imdbLink": "https://www.imdb.com/title/tt0120737/"
+  },
+  {
+    "id": 7,
+    "title": "Breaking Bad",
+    "year": 2008,
+    "type": "tv",
+    "lat": 35.1262,
+    "lng": -106.5369,
+    "locationName": "Albuquerque, New Mexico",
+    "trailerUrl": "https://www.youtube.com/watch?v=HhesaQXLuRY",
+    "imdbLink": "https://www.imdb.com/title/tt0903747/"
+  }
+]
