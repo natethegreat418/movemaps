@@ -62,10 +62,23 @@ const getLocations = async () => {
         data.created_at = data.created_at.toDate().toISOString();
       }
       
-      locations.push({
+      // Convert snake_case to camelCase for frontend
+      const formattedData = {
         id: doc.id,
+        title: data.title,
+        year: data.year,
+        type: data.type || 'movie',
+        lat: data.lat,
+        lng: data.lng,
+        // Support both naming conventions
+        locationName: data.location_name || data.locationName || '',
+        trailerUrl: data.trailer_url || data.trailerUrl || '',
+        imdbLink: data.imdb_link || data.imdbLink || '',
+        // Include all other fields
         ...data
-      });
+      };
+      
+      locations.push(formattedData);
     });
     
     console.log('Returning', locations.length, 'locations');
