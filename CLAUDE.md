@@ -25,6 +25,7 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
   - React Router (HashRouter) for client-side routing
   - React hooks for state management
   - API utilities with error handling and fallbacks
+- **Filtering**: Map supports filtering to toggle between movies and TV shows
 
 ## Project Structure
 - `/moviemap` - Frontend React application
@@ -39,7 +40,11 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
     - `firestore.js` - Firestore implementation
   - `/middleware` - Express middleware (auth, moderation)
   - `/routes` - API route definitions (public, admin)
-  - `/scripts` - Utility scripts for database management
+  - `/data` - Sample location data for development and imports
+- `/scripts` - Utility scripts for database management and data processing
+  - `validate-trailers.js` - Validates and fixes YouTube trailer URLs
+  - `import-locations.js` - Processes and imports locations to Firestore
+  - `update-database.sh` - Convenient shell script to run the validation and import process
 
 ## Build Commands
 ### Frontend
@@ -50,9 +55,11 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
 ### Backend
 - `cd server && npm start` - Start Express server
 - `cd server && npm run dev` - Start server with nodemon for development
-- `cd server && npm run add-locations` - Add film locations to Firestore
-- `cd server && npm run test:locations` - Test Firestore locations retrieval
-- `cd server && npm test` - Run all Firestore integration tests
+
+### Scripts
+- `cd scripts && node validate-trailers.js` - Validate and fix YouTube trailer URLs
+- `cd scripts && node import-locations.js` - Import validated locations to Firestore
+- `cd scripts && ./update-database.sh` - Run complete validation and import process
 
 ## API Endpoints
 - `GET /api/locations` - Get all approved filming locations
@@ -83,8 +90,8 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
   - Requires Firebase service account for authentication
   - Set `FIREBASE_SERVICE_ACCOUNT_JSON` as environment variable
 - **Data Management**:
-  - Use `npm run add-locations` to populate the production database
-  - Use `--overwrite` flag to replace existing locations
+  - Use scripts from the `/scripts` directory to populate the production database
+  - Sample data available in `/server/data/sampleLocations.js`
 
 ## Important Implementation Details
 - **Async Database Access**: All database operations return Promises and must be used with `await`
@@ -93,6 +100,7 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
 - **Frontend Fallbacks**: Sample data as fallback for network errors only
 - **Authentication Flow**: JWT-based Firebase auth with moderator role check
 - **Security**: Environment variables for sensitive data, CORS enabled
+- **Development Server**: Vite proxy configuration to handle CORS in development
 
 ## Design Guidelines
 - Use the Alamo Drafthouse-inspired color palette:
@@ -132,7 +140,9 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
 - **Authentication Errors**: Use test token in development, verify service account in production
 - **Database Connection Issues**: Check service account credentials and permissions
 - **Empty API Responses**: Verify that database is populated with locations
-- **CORS Errors**: Ensure frontend is making requests to correct API URL
+- **CORS Errors**: 
+  - Ensure frontend is making requests to correct API URL
+  - In development, Vite is configured with a proxy to avoid CORS issues
 
 ## CSS Architecture
 - Main theme variables defined in `theme.css` (Alamo Drafthouse-inspired)
@@ -141,11 +151,14 @@ MovieMap displays filming locations of famous movies/TV shows on an interactive 
 - Use CSS variables for consistency across components
 
 ## Recent Implementation Changes
-- Added About page with developer information
+- Added About page with developer information and GitHub repository link
+- Added filter functionality to toggle between movies and TV shows on the map
+- Expanded location database to 150 entries (75 movies, 75 TV shows)
+- Improved trailer URL validation and database import process
+- Restructured project by moving scripts to root-level directory
+- Added Vite proxy configuration to handle CORS in development
 - Switched from BrowserRouter to HashRouter for better static hosting compatibility
-- Ensured consistent sample data between development mock and production database
 - Pre-populated mock Firestore in development for more consistent testing
-- Fixed Firestore mock implementation
 
 ## Areas for Cleanup
 - CSS duplication between App.css and theme.css

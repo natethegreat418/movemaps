@@ -8,6 +8,9 @@
     "test": "node test-firestore.js",
     "test:admin": "node test-admin-route.js",
     "add-locations": "node scripts/add-locations.js",
+    "import-locations": "node scripts/import-locations.js",
+    "validate-trailers": "node scripts/validate-trailers.js",
+    "update-db": "./scripts/update-database.sh",
     "test:locations": "node scripts/test-locations.js",
     "fetch-imdb": "node scripts/fetch-imdb-locations.js"
   },

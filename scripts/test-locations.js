@@ -3,7 +3,7 @@
  */
 
 // Import the Firestore database module
-const db = require('../db');
+const db = require('../server/db');
 
 async function testLocations() {
   try {

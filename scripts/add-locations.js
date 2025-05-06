@@ -9,13 +9,13 @@
 process.env.NODE_ENV = 'production';
 
 // Import the Firestore database module
-const db = require('../db');
+const db = require('../server/db');
 
 // Import the Firebase admin SDK to access Firestore directly if needed
-const { admin } = require('../config/firebase');
+const { admin } = require('../server/config/firebase');
 
-// Import sample locations from shared data module
-const { sampleLocations: locationsData } = require('../data/sampleLocations');
+// Import sample locations directly from server data module
+const { sampleLocations: locationsData } = require('../server/data/sampleLocations');
 
 /**
  * Add locations to Firestore

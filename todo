@@ -1,4 +1,3 @@
-
 # 📋 MovieMap TODO Checklist
 
 A comprehensive, step-by-step checklist to guide the development of the MovieMap project from setup to deployment.
@@ -22,14 +21,15 @@ A comprehensive, step-by-step checklist to guide the development of the MovieMap
 - [x] Install frontend dependencies (React, Mapbox GL, etc.)
 - [x] Install backend dependencies (Express, better-sqlite3, dotenv, CORS, Firebase Admin SDK)
 - [x] Configure CORS in Express backend
+- [x] Set up Vite proxy configuration to handle CORS in development
 - [ ] Create `GET /health` route in backend
 
 ---
 
 ## 🗃️ Database Setup
 
-- [x] Set up SQLite database (replaced PostgreSQL)
-- [x] Create `locations` table with columns:
+- [x] Set up Firebase Firestore database
+- [x] Create `locations` collection with fields:
   - [x] id (PK)
   - [x] title
   - [x] type (movie/tv)
@@ -38,10 +38,11 @@ A comprehensive, step-by-step checklist to guide the development of the MovieMap
   - [x] imdb_link
   - [x] year
   - [x] location_name
-- [x] Create `submissions` table with columns:
-  - [x] All `locations` columns
+- [x] Create `submissions` collection with fields:
+  - [x] All `locations` fields
   - [x] status (pending/approved/rejected)
-- [x] Create `moderators` table with Firebase UID
+- [x] Create `moderators` collection with Firebase UID
+- [x] Set up development mock Firestore
 
 ---
 
@@ -61,6 +62,7 @@ A comprehensive, step-by-step checklist to guide the development of the MovieMap
 - [x] Load map centered on a default location
 - [x] Create and style pin components
 - [x] Show modal with movie details on pin click
+- [x] Add filter functionality to toggle between movies and TV shows
 - [ ] Add clustering behavior for overlapping pins
 
 ---
@@ -103,6 +105,7 @@ A comprehensive, step-by-step checklist to guide the development of the MovieMap
 
 - [x] Make Mapbox map responsive
 - [x] Ensure location modals work well on small screens
+- [x] Optimize filter controls for mobile
 - [ ] Optimize submission form layout for mobile
 - [ ] Ensure admin interface is usable on mobile
 
@@ -112,6 +115,7 @@ A comprehensive, step-by-step checklist to guide the development of the MovieMap
 
 - [ ] Test form submissions with invalid/missing data
 - [x] Test location modals on all screen sizes
+- [x] Test filter functionality
 - [ ] Test pin clustering behavior
 - [ ] Test API endpoints with Postman or equivalent
 - [ ] Test Firebase login and admin access control
@@ -120,7 +124,8 @@ A comprehensive, step-by-step checklist to guide the development of the MovieMap
 
 ## 🚀 Deployment
 
-- [ ] Deploy frontend to Netlify or Vercel
+- [x] Deploy frontend to Netlify
+- [x] Add GitHub repository link to About page
 - [ ] Deploy backend to Render or other platform
 - [ ] Set production `.env` variables
 - [ ] Test full app in production
@@ -133,3 +138,12 @@ A comprehensive, step-by-step checklist to guide the development of the MovieMap
 - [ ] Gather user feedback
 - [ ] Plan next iteration (e.g. user accounts, filtering, analytics)
 
+---
+
+## 🔧 Data Management
+
+- [x] Create validation for trailer URLs
+- [x] Develop script for importing large batches of locations
+- [x] Expand location database to 150 entries (75 movies, 75 TV shows)
+- [x] Move utility scripts to root-level directory
+- [x] Create shell script to streamline database updates

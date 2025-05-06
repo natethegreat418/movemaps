@@ -26,8 +26,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Import the Firestore database module
-const db = require('../db');
-const { admin } = require('../config/firebase');
+const db = require('../server/db');
+const { admin } = require('../server/config/firebase');
 
 // Check for required API keys
 const OMDB_API_KEY = process.env.OMDB_API_KEY;
@@ -676,7 +676,7 @@ async function saveLocationsToFirestore(locationsData) {
  * Save locations to a local JSON file for backup or review
  */
 function saveLocationsToFile(locations, filename = 'imdb-locations.json') {
-  const filePath = path.join(__dirname, filename);
+  const filePath = path.join(__dirname, '../server/data', filename);
   fs.writeFileSync(filePath, JSON.stringify(locations, null, 2));
   console.log(`Saved ${locations.length} locations to ${filePath}`);
 }

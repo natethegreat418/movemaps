@@ -2,7 +2,19 @@
   "name": "moviemaps-root",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "start:server": "cd server && npm start",
+    "dev:server": "cd server && npm run dev",
+    "dev:frontend": "cd moviemap && npm run dev",
+    "dev": "echo \"Starting development servers. Run each in a separate terminal:\" && echo \"- npm run dev:server\" && echo \"- npm run dev:frontend\"",
+    "validate-trailers": "node scripts/validate-trailers.js",
+    "import-locations": "node scripts/import-locations.js",
+    "update-db": "./scripts/update-database.sh",
+    "fetch-imdb": "node scripts/fetch-imdb-locations.js",
+    "build:all": "cd moviemap && npm run build"
+  },
   "dependencies": {
-    "firebase-admin": "^11.11.1"
+    "firebase-admin": "^11.11.1",
+    "axios": "^1.9.0"
   }
 }
