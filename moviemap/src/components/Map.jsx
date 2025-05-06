@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '../styles/Map.css';
@@ -15,11 +15,31 @@ const Map = () => {
   const [error, setError] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   
+  // Filter states
+  const [showMovies, setShowMovies] = useState(true);
+  const [showTV, setShowTV] = useState(true);
+  
   // Default map center coordinates (World view)
   const [lng, setLng] = useState(0);
   const [lat, setLat] = useState(30);
   const [zoom, setZoom] = useState(2); // Start zoomed out to see the world
 
+  // Filtered locations based on selected filters
+  const filteredLocations = useMemo(() => {
+    return locations.filter(location => {
+      if (location.type === 'movie' && showMovies) return true;
+      if (location.type === 'tv' && showTV) return true;
+      return false;
+    });
+  }, [locations, showMovies, showTV]);
+  
+  // Statistics for location types
+  const locationStats = useMemo(() => {
+    const movieCount = locations.filter(loc => loc.type === 'movie').length;
+    const tvCount = locations.filter(loc => loc.type === 'tv').length;
+    return { movieCount, tvCount };
+  }, [locations]);
+  
   // Fetch locations from API
   useEffect(() => {
     const getLocations = async () => {
@@ -101,7 +121,7 @@ const Map = () => {
     markersRef.current = [];
 
     // Add markers for each location
-    locations.forEach(location => {
+    filteredLocations.forEach(location => {
       // Create marker element
       const markerEl = document.createElement('div');
       markerEl.className = 'map-marker';
@@ -125,10 +145,10 @@ const Map = () => {
     });
 
     // Adjust the map bounds to fit all markers if there are multiple
-    if (locations.length > 1) {
+    if (filteredLocations.length > 1) {
       const bounds = new mapboxgl.LngLatBounds();
       
-      locations.forEach(location => {
+      filteredLocations.forEach(location => {
         bounds.extend([location.lng, location.lat]);
       });
       
@@ -136,14 +156,14 @@ const Map = () => {
         padding: 50,
         maxZoom: 10
       });
-    } else if (locations.length === 1) {
+    } else if (filteredLocations.length === 1) {
       // If there's only one location, center on it
       map.current.flyTo({
-        center: [locations[0].lng, locations[0].lat],
+        center: [filteredLocations[0].lng, filteredLocations[0].lat],
         zoom: 13
       });
     }
-  }, [locations, mapLoaded]);
+  }, [filteredLocations, mapLoaded]);
 
   return (
     <div className="map-wrapper">
@@ -152,7 +172,31 @@ const Map = () => {
           Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
         </div>
         <div className="map-location-count">
-          {loading ? 'Loading locations...' : `${locations.length} filming locations found`}
+          {loading ? 'Loading locations...' : `${filteredLocations.length} filming locations found`}
+        </div>
+      </div>
+      
+      <div className="map-filters">
+        <div className="filter-title">Show:</div>
+        <div className="filter-options">
+          <label className={`filter-option ${showMovies ? 'active' : ''}`}>
+            <input 
+              type="checkbox" 
+              checked={showMovies} 
+              onChange={() => setShowMovies(!showMovies)}
+            />
+            <span className="filter-marker movie-marker"></span>
+            Movies <span className="count">({locationStats.movieCount})</span>
+          </label>
+          <label className={`filter-option ${showTV ? 'active' : ''}`}>
+            <input 
+              type="checkbox" 
+              checked={showTV} 
+              onChange={() => setShowTV(!showTV)}
+            />
+            <span className="filter-marker tv-marker"></span>
+            TV Shows <span className="count">({locationStats.tvCount})</span>
+          </label>
         </div>
       </div>
       
