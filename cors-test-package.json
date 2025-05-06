@@ -1,0 +1,18 @@
+{
+  "name": "moviemaps-cors-test",
+  "version": "1.0.0",
+  "description": "CORS testing tools for MovieMaps",
+  "scripts": {
+    "test-server": "node cors-test-server.js",
+    "proxy-server": "node proxy-server.js",
+    "both": "concurrently \"npm run test-server\" \"npm run proxy-server\""
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MovieMap CORS Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #b11f29;
+    }
+    .test-section {
+      margin-bottom: 30px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #b11f29;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background-color: #d32f2f;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      overflow: auto;
+      max-height: 300px;
+    }
+    .success {
+      color: #2e7d32;
+    }
+    .error {
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <h1>MovieMap CORS Test Tool</h1>
+  <p>Use this tool to test API connectivity and diagnose CORS issues in the MovieMap application.</p>
+
+  <div class="test-section">
+    <h2>Test 1: Relative Path API Request</h2>
+    <p>Tests the Vite proxy configuration by making a request to a relative path.</p>
+    <button id="testRelativePathButton">Test Relative Path (/api/locations)</button>
+    <pre id="relativePathResult">Results will appear here...</pre>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 2: Direct API Request</h2>
+    <p>Tests a direct request to the backend server.</p>
+    <button id="testDirectApiButton">Test Direct API (http://localhost:3000/api/locations)</button>
+    <pre id="directApiResult">Results will appear here...</pre>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 3: Environment Check</h2>
+    <p>Displays the current environment configuration.</p>
+    <button id="testEnvironmentButton">Check Environment</button>
+    <pre id="environmentResult">Results will appear here...</pre>
+  </div>
+
+  <script>
+    // Test 1: Relative Path API Request
+    document.getElementById('testRelativePathButton').addEventListener('click', async () => {
+      const resultElement = document.getElementById('relativePathResult');
+      resultElement.textContent = 'Testing API connection via relative path...';
+      resultElement.className = '';
+      
+      try {
+        const response = await fetch('/api/locations');
+        const data = await response.json();
+        
+        resultElement.textContent = '✅ Success!\n\nData:\n' + 
+          JSON.stringify(data, null, 2);
+        resultElement.className = 'success';
+      } catch (error) {
+        resultElement.textContent = '❌ Error: ' + error.message;
+        resultElement.className = 'error';
+        console.error('Relative path test error:', error);
+      }
+    });
+
+    // Test 2: Direct API Request
+    document.getElementById('testDirectApiButton').addEventListener('click', async () => {
+      const resultElement = document.getElementById('directApiResult');
+      resultElement.textContent = 'Testing direct API connection...';
+      resultElement.className = '';
+      
+      try {
+        const response = await fetch('http://localhost:3000/api/locations', {
+          mode: 'cors' // Explicitly request CORS mode
+        });
+        const data = await response.json();
+        
+        resultElement.textContent = '✅ Success!\n\nData:\n' + 
+          JSON.stringify(data, null, 2);
+        resultElement.className = 'success';
+      } catch (error) {
+        resultElement.textContent = '❌ Error: ' + error.message;
+        resultElement.className = 'error';
+        console.error('Direct API test error:', error);
+      }
+    });
+
+    // Test 3: Environment Check
+    document.getElementById('testEnvironmentButton').addEventListener('click', () => {
+      const resultElement = document.getElementById('environmentResult');
+      resultElement.className = '';
+      
+      // Get browser information
+      const browserInfo = {
+        userAgent: navigator.userAgent,
+        cookiesEnabled: navigator.cookieEnabled,
+        language: navigator.language,
+        platform: navigator.platform
+      };
+      
+      // Get current URL
+      const urlInfo = {
+        origin: window.location.origin,
+        hostname: window.location.hostname,
+        pathname: window.location.pathname,
+        protocol: window.location.protocol,
+        port: window.location.port || '(default)'
+      };
+      
+      resultElement.textContent = 'Environment Information:\n\n' +
+        'Browser:\n' + JSON.stringify(browserInfo, null, 2) + '\n\n' +
+        'URL:\n' + JSON.stringify(urlInfo, null, 2);
+    });
+  </script>
+</body>
+</html>

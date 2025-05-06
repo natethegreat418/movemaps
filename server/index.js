@@ -18,9 +18,9 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-  origin: ['https://moviemaps.net', 'http://localhost:5173', 'http://localhost:3000'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+  origin: '*', // Allow all origins in development
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 app.use(express.json());
 

@@ -21,14 +21,17 @@ export const isProduction = () => {
 
 /**
  * Get the current API URL from environment variables
- * Falls back to localhost in development
+ * In development, use a relative path to leverage Vite's proxy
+ * In production, use the configured VITE_API_URL
  */
 export const getApiUrl = () => {
-  // Use standard API URL
-  const apiUrl = import.meta.env.VITE_API_URL || 
-    (isDevelopment() ? 'http://localhost:3000/api' : null);
+  if (isDevelopment()) {
+    // In development, use a relative path that will be handled by Vite's proxy
+    return '/api';
+  }
   
-  return apiUrl;
+  // In production, use the configured API URL
+  return import.meta.env.VITE_API_URL || null;
 };
 
 /**

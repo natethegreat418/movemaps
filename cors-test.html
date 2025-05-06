@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Test for MovieMaps</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+        .success {
+            border-color: green;
+            background-color: #e6ffe6;
+        }
+        .error {
+            border-color: red;
+            background-color: #ffe6e6;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            background-color: #b11f29;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h1>MovieMaps CORS Test</h1>
+    
+    <div>
+        <h2>API URL Configuration</h2>
+        <input type="text" id="apiUrl" placeholder="Enter API URL (e.g., http://localhost:3000/api)" value="http://localhost:3000/api">
+    </div>
+
+    <div>
+        <h2>Test Direct API Call</h2>
+        <button onclick="testDirectApi()">Test Direct API Call</button>
+        <div id="directResult" class="result"></div>
+    </div>
+
+    <div>
+        <h2>Test with CORS Proxy</h2>
+        <button onclick="testCorsProxy()">Test with CORS Proxy</button>
+        <div id="proxyResult" class="result"></div>
+    </div>
+
+    <div>
+        <h2>Test Local Proxy Server</h2>
+        <button onclick="testLocalProxy()">Test Local Proxy Server</button>
+        <div id="localProxyResult" class="result"></div>
+    </div>
+
+    <div>
+        <h2>Test Netlify Function</h2>
+        <button onclick="testNetlifyFunction()">Test Netlify Function</button>
+        <div id="netlifyResult" class="result"></div>
+    </div>
+
+    <div>
+        <h2>Test with Fetch No-Cors Mode</h2>
+        <button onclick="testFetchNoCorsPreflight()">Test No-Cors Mode</button>
+        <div id="noCorsResult" class="result"></div>
+    </div>
+
+    <script>
+        async function testDirectApi() {
+            const resultElement = document.getElementById('directResult');
+            resultElement.className = 'result';
+            resultElement.innerText = 'Testing...';
+            
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            try {
+                const response = await fetch(`${apiUrl}/locations`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    mode: 'cors' // Default mode
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultElement.className = 'result success';
+                resultElement.innerText = 'SUCCESS!\n\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerText = 'ERROR!\n\n' + error.message;
+                console.error('Direct API error:', error);
+            }
+        }
+        
+        async function testCorsProxy() {
+            const resultElement = document.getElementById('proxyResult');
+            resultElement.className = 'result';
+            resultElement.innerText = 'Testing...';
+            
+            const apiUrl = document.getElementById('apiUrl').value;
+            // Using a public CORS proxy - not recommended for production!
+            const corsProxyUrl = 'https://cors-anywhere.herokuapp.com/';
+            
+            try {
+                const response = await fetch(`${corsProxyUrl}${apiUrl}/locations`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultElement.className = 'result success';
+                resultElement.innerText = 'SUCCESS!\n\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerText = 'ERROR!\n\n' + error.message;
+                console.error('CORS proxy error:', error);
+            }
+        }
+        
+        async function testNetlifyFunction() {
+            const resultElement = document.getElementById('netlifyResult');
+            resultElement.className = 'result';
+            resultElement.innerText = 'Testing...';
+            
+            try {
+                // Assuming Netlify functions are deployed at /.netlify/functions/
+                const response = await fetch('/.netlify/functions/api/locations', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultElement.className = 'result success';
+                resultElement.innerText = 'SUCCESS!\n\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerText = 'ERROR!\n\n' + error.message;
+                console.error('Netlify function error:', error);
+            }
+        }
+        
+        async function testLocalProxy() {
+            const resultElement = document.getElementById('localProxyResult');
+            resultElement.className = 'result';
+            resultElement.innerText = 'Testing...';
+            
+            try {
+                // Use the local proxy server running on port 3002
+                const response = await fetch('http://localhost:3002/api/locations', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultElement.className = 'result success';
+                resultElement.innerText = 'SUCCESS!\n\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerText = 'ERROR!\n\n' + error.message;
+                console.error('Local proxy error:', error);
+            }
+        }
+
+        async function testFetchNoCorsPreflight() {
+            const resultElement = document.getElementById('noCorsResult');
+            resultElement.className = 'result';
+            resultElement.innerText = 'Testing...';
+            
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            try {
+                // Using no-cors mode (will not allow reading the response)
+                const response = await fetch(`${apiUrl}/locations`, {
+                    method: 'GET',
+                    mode: 'no-cors'  // This prevents reading the response but may avoid CORS errors
+                });
+                
+                // Cannot read response in no-cors mode, so this is just testing if the request goes through
+                resultElement.className = 'result success';
+                resultElement.innerText = 'Request completed, but response cannot be read in no-cors mode.\n\nThis test succeeding only means the request was sent without a CORS error, not that it worked correctly.';
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerText = 'ERROR!\n\n' + error.message;
+                console.error('No-CORS error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

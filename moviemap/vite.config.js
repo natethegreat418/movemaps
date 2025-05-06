@@ -24,6 +24,19 @@ export default defineConfig(({ mode }) => {
     })],
     base: './', // Use relative paths for assets
     
+    // Development server configuration with CORS proxy
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path
+        }
+      },
+      cors: false // Disable CORS in development server to let the proxy handle it
+    },
+    
     // Configure build options
     build: {
       // Optimize bundle size by setting up chunk strategy

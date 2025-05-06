@@ -94,6 +94,26 @@ const About = () => {
               <li>Authentication: Firebase Auth for moderator access</li>
             </ul>
           </section>
+          
+          <section className="about-section">
+            <h2>Open Source & Deployment</h2>
+            <p>
+              MovieMap is an open source project. You can find the source code in our 
+              <a href="https://github.com/nathanmarcus/moviemaps" target="_blank" rel="noopener noreferrer"> GitHub repository</a>.
+            </p>
+            <p>
+              The application is deployed using the following strategy:
+            </p>
+            <ul>
+              <li>Frontend: Hosted on Netlify with continuous deployment from the GitHub repository</li>
+              <li>Backend API: Implemented as Netlify Functions for serverless deployment</li>
+              <li>Database: Firebase Firestore cloud database for persistent storage across environments</li>
+            </ul>
+            <p>
+              This deployment approach provides a scalable, maintenance-free infrastructure that automatically 
+              scales with user demand.
+            </p>
+          </section>
         </main>
         
         <footer className="footer">

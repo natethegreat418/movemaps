@@ -5,7 +5,7 @@ import { getApiUrl, shouldUseSampleData } from './env';
  * API configuration 
  */
 const API_CONFIG = {
-  baseUrl: getApiUrl() || 'http://localhost:3000/api',
+  baseUrl: getApiUrl() || '/api', // Default to '/api' for Vite proxy
   timeout: 5000, // 5 second timeout for API requests
   // No fallback endpoints - using local sample data for development
   fallbackEndpoints: [],
@@ -22,7 +22,14 @@ const API_CONFIG = {
  * @returns {Promise<any>} Response data
  */
 async function fetchWithTimeout(endpoint, options = {}) {
-  const url = `${API_CONFIG.baseUrl}/${endpoint.replace(/^\//, '')}`;
+  // Remove leading slash from endpoint if present
+  const cleanEndpoint = endpoint.replace(/^\//, '');
+  
+  // Determine the full URL
+  const url = API_CONFIG.baseUrl.endsWith('/') 
+    ? `${API_CONFIG.baseUrl}${cleanEndpoint}` 
+    : `${API_CONFIG.baseUrl}/${cleanEndpoint}`;
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
   
